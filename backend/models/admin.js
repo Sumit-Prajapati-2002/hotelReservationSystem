@@ -30,11 +30,7 @@ const Admin = sequelize.define(
     },
     password: {
       type: DataTypes.STRING,
-      set(value) {
-        const salt = bcrypt.genSaltSync(10);
-        const hashed = bcrypt.hashSync(value, salt);
-        this.setDataValue("password", hashed);
-      },
+      allowNull:false,
     },
     phone_no: {
       type: DataTypes.BIGINT,

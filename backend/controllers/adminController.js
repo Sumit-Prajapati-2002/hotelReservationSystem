@@ -1,5 +1,5 @@
 const Admin = require("../models/admin");
-
+const jwt = require("jsonwebtoken");
 async function createAdmin(req, res) {
   try {
     const { username, email, password, phone_no } = req.body;
@@ -67,7 +67,26 @@ async function deleteAdmin(req, res) {
     }
 
     await admin.destroy();
-    res.status(200).json({ success: true, message: "Admin deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Admin deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+async function adminLogin(req, res) {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ where: { email } });
+    if (!admin || admin.password !== password) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    const token = jwt.sign(
+      { id: admin.admin_id, email: admin.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    res.status(200).json({ success: true, token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -79,4 +98,5 @@ module.exports = {
   getAdminById,
   updateAdmin,
   deleteAdmin,
+  adminLogin,
 };

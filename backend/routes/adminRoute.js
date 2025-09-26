@@ -6,12 +6,17 @@ const {
   getAdminById,
   updateAdmin,
   deleteAdmin,
+  adminLogin,
 } = require("../controllers/adminController");
+const { adminSearch } = require("../controllers/adminSearchController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
+router.post("/login", adminLogin);
 
 router.post("/", createAdmin);
-router.get("/", getAllAdmins);
-router.get("/:id", getAdminById);
-router.put("/:id", updateAdmin);
-router.delete("/:id", deleteAdmin);
+router.get("/", authenticateAdmin, getAllAdmins);
+router.get("/booking/search", authenticateAdmin, adminSearch);
+router.get("/:id", authenticateAdmin, getAdminById);
+router.put("/:id", authenticateAdmin, updateAdmin);
+router.delete("/:id", authenticateAdmin, deleteAdmin);
 
 module.exports = router;
