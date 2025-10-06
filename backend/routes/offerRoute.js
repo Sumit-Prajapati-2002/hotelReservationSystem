@@ -7,11 +7,12 @@ const {
   updateOffer,
   deleteOffer,
 } = require("../controllers/offerController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
-router.post("/", createOffer);
+router.post("/",authenticateAdmin, createOffer);
 router.get("/", getAllOffers);
 router.get("/:id", getOfferById);
-router.put("/:id", updateOffer);
-router.delete("/:id", deleteOffer);
+router.put("/:id",authenticateAdmin, updateOffer);
+router.delete("/:id",authenticateAdmin, deleteOffer);
 
 module.exports = router;

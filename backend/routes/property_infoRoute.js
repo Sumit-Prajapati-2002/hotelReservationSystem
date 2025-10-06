@@ -7,11 +7,12 @@ const {
   updatePropertyInfo,
   deletePropertyInfo,
 } = require("../controllers/property_infoController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
-router.post("/", createPropertyInfo);
+router.post("/", authenticateAdmin,createPropertyInfo);
 router.get("/", getAllPropertyInfo);
 router.get("/:id", getPropertyInfoById);
-router.put("/:id", updatePropertyInfo);
-router.delete("/:id", deletePropertyInfo);
+router.put("/:id",authenticateAdmin, updatePropertyInfo);
+router.delete("/:id",authenticateAdmin, deletePropertyInfo);
 
 module.exports = router;

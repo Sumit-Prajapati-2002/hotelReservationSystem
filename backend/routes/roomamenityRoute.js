@@ -7,11 +7,12 @@ const {
   updateRoomAmenity,
   deleteRoomAmenity,
 } = require("../controllers/roomAmenityController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
-router.post("/", createRoomAmenity);
-router.get("/", getAllRoomAmenities);
+router.post("/",authenticateAdmin, createRoomAmenity);
+router.get("/", authenticateAdmin,getAllRoomAmenities);
 router.get("/:id", getRoomAmenityById);
-router.put("/:id", updateRoomAmenity);
-router.delete("/:id", deleteRoomAmenity);
+router.put("/:id",authenticateAdmin, updateRoomAmenity);
+router.delete("/:id",authenticateAdmin, deleteRoomAmenity);
 
 module.exports = router;

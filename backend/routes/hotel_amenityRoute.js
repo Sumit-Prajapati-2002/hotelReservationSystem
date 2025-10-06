@@ -7,11 +7,12 @@ const {
   updateHotelAmenity,
   deleteHotelAmenity,
 } = require("../controllers/hotel_amenityController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
-router.post("/", createHotelAmenity);
-router.get("/", getAllHotelAmenities);
-router.get("/:id", getHotelAmenityById);
-router.put("/:id", updateHotelAmenity);
-router.delete("/:id", deleteHotelAmenity);
+router.post("/", authenticateAdmin,createHotelAmenity);
+router.get("/", authenticateAdmin,getAllHotelAmenities);
+router.get("/:id",authenticateAdmin, getHotelAmenityById);
+router.put("/:id",authenticateAdmin, updateHotelAmenity);
+router.delete("/:id",authenticateAdmin, deleteHotelAmenity);
 
 module.exports = router;

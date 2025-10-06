@@ -7,11 +7,21 @@ const {
   updateBookingDetails,
   deleteBookingDetails,
 } = require("../controllers/bookingDetailsController");
-
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 router.post("/", createBookingDetails);
-router.get("/", getAllBookingDetails);
+router.get("/", authenticateAdmin, getAllBookingDetails);
 router.get("/:id", getBookingDetailsById);
-router.put("/:id", updateBookingDetails);
-router.delete("/:id", deleteBookingDetails);
+router.put(
+  "/:id",
+  authenticateAdmin,
+
+  updateBookingDetails
+);
+router.delete(
+  "/:id",
+  authenticateAdmin,
+
+  deleteBookingDetails
+);
 
 module.exports = router;

@@ -1,5 +1,5 @@
 const Customer = require("../models/customer");
-
+const jwt = require("jsonwebtoken");
 async function createCustomer(req, res) {
   try {
     const { firstname, lastname, email, password, phone_no, guestCheckout } =
@@ -86,6 +86,29 @@ async function deleteCustomer(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+async function customerLogin(req, res) {
+  try {
+    const { email, password } = req.body;
+    const customer = await Customer.findOne({ where: { email } });
+    if (!customer || customer.password !== password) {
+      return res.status(401).json({ message: "Invalid Credentials" });
+    }
+    const token = jwt.sign(
+      { id: customer.customer_id, email: customer.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000,
+    });
+    res.status(200).json({ success: true, token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 module.exports = {
   createCustomer,
@@ -93,4 +116,5 @@ module.exports = {
   getCustomerById,
   updateCustomer,
   deleteCustomer,
+  customerLogin,
 };

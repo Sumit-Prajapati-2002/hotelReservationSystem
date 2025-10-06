@@ -8,20 +8,16 @@ const {
   updateRoom,
   deleteRoom,
 } = require("../controllers/roomController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
-// Create a room
-router.post("/", createRoom);
+router.post("/", authenticateAdmin, createRoom);
 
-// Get all rooms
-router.get("/", getRooms);
+router.get("/", authenticateAdmin,getRooms);
 
-// Get one room by ID
 router.get("/:id", getRoomById);
 
-// Update a room
-router.put("/:id", updateRoom);
+router.put("/:id", authenticateAdmin, updateRoom);
 
-// Delete a room
-router.delete("/:id", deleteRoom);
+router.delete("/:id", authenticateAdmin, deleteRoom);
 
 module.exports = router;

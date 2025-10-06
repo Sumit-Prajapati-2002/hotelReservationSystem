@@ -8,18 +8,16 @@ const {
   updateService,
   deleteService,
 } = require("../controllers/serviceController");
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
+router.post("/", authenticateAdmin, createServices);
 
-router.post("/", createServices);
-
-
-router.get("/", getServices);
-
+router.get("/",authenticateAdmin, getServices);
 
 router.get("/:id", getServiceById);
 
-router.put("/:id", updateService);
+router.put("/:id", authenticateAdmin, updateService);
 
-router.delete("/:id", deleteService);
+router.delete("/:id", authenticateAdmin, deleteService);
 
 module.exports = router;

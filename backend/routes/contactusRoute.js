@@ -7,11 +7,11 @@ const {
   updateContactus,
   deleteContactus,
 } = require("../controllers/contactusController");
-
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 router.post("/", createContactus);
-router.get("/", getAllContactus);
-router.get("/:id", getContactusById);
+router.get("/",authenticateAdmin, getAllContactus);
+router.get("/:id", authenticateAdmin,getContactusById);
 router.put("/:id", updateContactus);
-router.delete("/:id", deleteContactus);
+router.delete("/:id",authenticateAdmin, deleteContactus);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const Admin = require("../models/admin");
 const jwt = require("jsonwebtoken");
+
 async function createAdmin(req, res) {
   try {
     const { username, email, password, phone_no } = req.body;
@@ -86,6 +87,12 @@ async function adminLogin(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_env === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000,
+    });
     res.status(200).json({ success: true, token });
   } catch (err) {
     res.status(500).json({ error: err.message });

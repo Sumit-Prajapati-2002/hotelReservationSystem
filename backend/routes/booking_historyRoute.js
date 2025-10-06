@@ -7,11 +7,11 @@ const {
   updateBookingHistory,
   deleteBookingHistory,
 } = require("../controllers/booking_historyController");
-
-router.post("/", createBookingHistory);
-router.get("/", getAllBookingHistories);
+const { authenticateAdmin} = require("../middlewares/authenticationAdmin");
+router.post("/", authenticateAdmin, createBookingHistory);
+router.get("/", authenticateAdmin, getAllBookingHistories);
 router.get("/:id", getBookingHistoryById);
-router.put("/:id", updateBookingHistory);
-router.delete("/:id", deleteBookingHistory);
+router.put("/:id",  updateBookingHistory);
+router.delete("/:id",  deleteBookingHistory);
 
 module.exports = router;

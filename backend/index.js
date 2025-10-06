@@ -17,6 +17,8 @@ const booking_historyRoute = require("./routes/booking_historyRoute");
 
 const app = express();
 app.use(express.json());
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
 app.use("/customer", customerRoute);
 app.use("/booking", bookingRoute);

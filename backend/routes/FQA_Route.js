@@ -7,7 +7,7 @@ const {
   updateFQA,
   deleteFQA,
 } = require("../controllers/FQA_Controllers");
-
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 router.post("/", createFQA);
 router.get("/", getAllFQA);
 router.get("/:id", getFQAById);
