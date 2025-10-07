@@ -18,14 +18,6 @@ const Room_Amenity = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    room_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: Room,
-        key: "room_id",
-      },
-      onDelete: "CASCADE",
-    },
   },
   {
     freezeTableName: true,

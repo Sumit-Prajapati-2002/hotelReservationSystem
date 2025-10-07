@@ -117,21 +117,12 @@ async function getAllBookings(req, res) {
   try {
     const bookings = await sequelize.query(
       `SELECT 
-         b."booking_id", 
-         b."checkIn_date", 
-         b."checkOut_date", 
-         b."status", 
-         b."total_price", 
-         b."num_guest",
-         c."firstname" AS "customer_firstname", 
-         c."lastname" AS "customer_lastname", 
-         c."email" AS "customer_email",
-         bd."booking_details_id",
-         bd."room_id", 
-         bd."offer_id"
-       FROM "Booking" AS b
-       LEFT JOIN "Customer" AS c ON b."customer_id" = c."customer_id"
-       LEFT JOIN "Booking_Details" AS bd ON bd."booking_id" = b."booking_id"`,
+     b."checkIn_date", 
+     b."checkOut_date", 
+     b."total_price", 
+     c."email" AS "customer_email"
+   FROM "Booking" AS b
+   LEFT JOIN "Customer" AS c ON b."customer_id" = c."customer_id"`,
       { type: QueryTypes.SELECT }
     );
 

@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
+const Room_Amenity = require("./room_amenity");
 
 const Room = sequelize.define(
   "Room",
@@ -25,6 +26,18 @@ const Room = sequelize.define(
     room_images: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    room_description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    room_amenity_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: Room_Amenity,
+        key: "room_amenity_id",
+      },
+      onDelete: "CASCADE",
     },
   },
   {
