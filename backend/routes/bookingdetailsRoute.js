@@ -8,15 +8,13 @@ const {
   deleteBookingDetails,
 } = require("../controllers/bookingDetailsController");
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
-router.post("/", createBookingDetails);
+const {
+  authenticateCustomer,
+} = require("../middlewares/authenticationCustomer");
+router.post("/", authenticateCustomer, createBookingDetails);
 router.get("/", authenticateAdmin, getAllBookingDetails);
-router.get("/:id", getBookingDetailsById);
-router.put(
-  "/:id",
-  authenticateAdmin,
-
-  updateBookingDetails
-);
+router.get("/:id", authenticateAdmin, getBookingDetailsById);
+router.put("/:id", authenticateAdmin, updateBookingDetails);
 router.delete(
   "/:id",
   authenticateAdmin,

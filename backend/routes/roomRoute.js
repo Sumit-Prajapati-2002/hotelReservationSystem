@@ -12,7 +12,7 @@ const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
 router.post("/", authenticateAdmin, createRoom);
 
-router.get("/", authenticateAdmin,getRooms);
+router.get("/", getRooms);
 
 router.get("/:id", getRoomById);
 

@@ -22,10 +22,6 @@ const Room = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    room_status: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     room_images: {
       type: DataTypes.STRING,
       allowNull: false,

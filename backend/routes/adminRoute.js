@@ -12,7 +12,7 @@ const { adminSearch } = require("../controllers/adminSearchController");
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 router.post("/login", adminLogin);
 
-router.post("/", authenticateAdmin,createAdmin);
+router.post("/", createAdmin);
 router.get("/", authenticateAdmin, getAllAdmins);
 router.get("/booking/search", authenticateAdmin, adminSearch);
 router.get("/:id", authenticateAdmin, getAdminById);

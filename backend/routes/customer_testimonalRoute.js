@@ -10,8 +10,8 @@ const {
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 router.post("/", createCustomerTestimonial);
 router.get("/",authenticateAdmin, getAllCustomerTestimonials);
-router.get("/:id", getCustomerTestimonialById);
-router.put("/:id", updateCustomerTestimonial);
-router.delete("/:id", deleteCustomerTestimonial);
+router.get("/:id",authenticateAdmin, getCustomerTestimonialById);
+router.put("/:id",authenticateAdmin, updateCustomerTestimonial);
+router.delete("/:id",authenticateAdmin, deleteCustomerTestimonial);
 
 module.exports = router;

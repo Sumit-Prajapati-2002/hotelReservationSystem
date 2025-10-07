@@ -38,7 +38,7 @@ app.use("/booking-history", booking_historyRoute);
 (async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: false });
     console.log("database Synced");
   } catch (err) {
     console.error("database connection failed due to", err);

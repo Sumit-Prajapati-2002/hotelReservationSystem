@@ -1,29 +1,64 @@
+const { calculateTotalPrice } = require("../services/BookingCalculation");
+const { isRoomAvailable } = require("../services/RoomAvailability");
+const Booking_Details = require("../models/Booking_Details");
+const Room = require("../models/room");
 const Booking = require("../models/Booking");
-
+const Customer = require("../models/customer");
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 async function createBooking(req, res) {
+  const t = await sequelize.transaction();
   try {
-    const {
-      checkIn_date,
-      checkOut_date,
-      status,
-      total_price,
-      num_guest,
-      customer_id,
-    } = req.body;
+    const { checkIn_date, checkOut_date, rooms, num_guest, customer_id } =
+      req.body;
 
-    const booking = await Booking.create({
-      checkIn_date,
-      checkOut_date,
-      status,
-      total_price: 0,
-      num_guest,
-      customer_id,
-    });
+    if (!rooms || rooms.length === 0)
+      return res
+        .status(400)
+        .json({ error: "At least one room must be selected" });
 
-    res.status(201).json({ success: true, booking });
+    for (const { room_id } of rooms) {
+      const available = await isRoomAvailable(
+        room_id,
+        checkIn_date,
+        checkOut_date
+      );
+      if (!available) {
+        return res
+          .status(400)
+          .json({ error: `Room ${room_id} is already booked` });
+      }
+    }
+
+    const booking = await Booking.create(
+      {
+        checkIn_date,
+        checkOut_date,
+        status: "pending",
+        total_price: 0,
+        num_guest,
+        customer_id,
+      },
+      { transaction: t }
+    );
+
+    for (const { room_id, offer_id } of rooms) {
+      await Booking_Details.create(
+        { booking_id: booking.booking_id, room_id, offer_id: offer_id || null },
+        { transaction: t }
+      );
+      await Room.update(
+        { room_status: "0" },
+        { where: { room_id }, transaction: t }
+      );
+    }
+
+    const total = await calculateTotalPrice(booking.booking_id, t);
+
+    await t.commit();
+    res.status(201).json({ success: true, booking, total_price: total });
   } catch (err) {
+    await t.rollback();
     res.status(500).json({ error: err.message });
   }
 }
@@ -34,27 +69,37 @@ async function getBookingById(req, res) {
 
     const booking = await sequelize.query(
       `SELECT 
-         b."booking_id",
-         b."checkIn_date",
-         b."checkOut_date",
-         b."status",
-         b."total_price",
-         b."num_guest",
-         c."firstname" AS "customer_firstname", 
-         c."lastname" AS "customer_lastname", 
-         c."email" AS "customer_email",
-         json_agg(
-          json_build_object(
-            'booking_details_id', bd."booking_details_id",
-            'room_id', bd."room_id",
-            'offer_id', bd."offer_id"
-          )
-        ) AS details
-       FROM "Booking" AS b
-       LEFT JOIN "Customer" AS c ON b."customer_id" = c."customer_id"
-       LEFT JOIN "Booking_Details" AS bd ON bd."booking_id" = b."booking_id"
-       WHERE b."booking_id" = :id
-        GROUP BY b."booking_id", c."firstname", c."lastname", c."email"`,
+     b."booking_id",
+     b."checkIn_date",
+     b."checkOut_date",
+     b."status",
+     b."total_price",
+     b."num_guest",
+     c."firstname" AS "customer_firstname",
+     c."lastname" AS "customer_lastname",
+     c."email" AS "customer_email",
+     COALESCE(
+       json_agg(
+         json_build_object(
+           'booking_details_id', bd."booking_details_id",
+           'room_id', bd."room_id",
+           'room_type', r."room_type",
+           'price_per_night', r."price_per_night",
+           'capacity', r."capacity",
+           'offer_id', bd."offer_id",
+           'offer_title', o."offer_title",
+           'discount_percent', o."discount_percent"
+         )
+       ) FILTER (WHERE bd."booking_details_id" IS NOT NULL),
+       '[]'
+     ) AS details
+   FROM "Booking" AS b
+   LEFT JOIN "Customer" AS c ON b."customer_id" = c."customer_id"
+   LEFT JOIN "Booking_Details" AS bd ON bd."booking_id" = b."booking_id"
+   LEFT JOIN "Room" AS r ON bd."room_id" = r."room_id"
+   LEFT JOIN "Promos_and_Offers" AS o ON bd."offer_id" = o."offer_id"
+   WHERE b."booking_id" = :id
+   GROUP BY b."booking_id", c."firstname", c."lastname", c."email"`,
       { replacements: { id }, type: QueryTypes.SELECT }
     );
 
@@ -105,11 +150,9 @@ async function updateBooking(req, res) {
       total_price,
       num_guest,
       customer_id,
-      booking_details_id,
     } = req.body;
 
     const booking = await Booking.findByPk(id);
-
     if (!booking) {
       return res.status(404).json({ error: "Booking not found" });
     }
@@ -121,7 +164,6 @@ async function updateBooking(req, res) {
       total_price,
       num_guest,
       customer_id,
-      booking_details_id,
     });
 
     res.status(200).json({ success: true, booking });
@@ -129,7 +171,6 @@ async function updateBooking(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
-
 async function deleteBooking(req, res) {
   try {
     const { id } = req.params;
@@ -147,6 +188,40 @@ async function deleteBooking(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+async function createGuestBooking(req, res) {
+  try {
+    const {
+      firstname,
+      lastname,
+      email,
+      phone_no,
+      checkIn_date,
+      checkOut_date,
+      num_guest,
+    } = req.body;
+
+    const guestCustomer = await Customer.create({
+      firstname,
+      lastname,
+      email,
+      phone_no,
+      is_guest: true,
+    });
+
+    const booking = await Booking.create({
+      checkIn_date,
+      checkOut_date,
+      status: "pending",
+      total_price: 0,
+      num_guest,
+      customer_id: guestCustomer.customer_id,
+    });
+
+    res.status(201).json({ success: true, booking });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 module.exports = {
   createBooking,
@@ -154,4 +229,5 @@ module.exports = {
   getBookingById,
   updateBooking,
   deleteBooking,
+  createGuestBooking,
 };
