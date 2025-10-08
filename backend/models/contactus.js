@@ -10,12 +10,16 @@ const Contactus = sequelize.define(
       allowNull: false,
       autoIncrement: true,
     },
+    contact_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     related_subject: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     message: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
   },

@@ -13,8 +13,8 @@ const {
   authenticateCustomer,
 } = require("../middlewares/authenticationCustomer");
 router.post("/guest", createGuestBooking);
-router.post("/",  createBooking);
-router.get("/",  getAllBookings);
+router.post("/", authenticateCustomer, createBooking);
+router.get("/", authenticateAdmin, getAllBookings);
 router.get("/:id", authenticateAdmin, getBookingById);
 router.put("/:id", authenticateAdmin, updateBooking);
 router.delete("/:id", authenticateAdmin, deleteBooking);

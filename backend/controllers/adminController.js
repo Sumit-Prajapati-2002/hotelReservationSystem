@@ -85,7 +85,7 @@ async function adminLogin(req, res) {
     const token = jwt.sign(
       { id: admin.admin_id, email: admin.email },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
     res.cookie("token", token, {
       httpOnly: true,

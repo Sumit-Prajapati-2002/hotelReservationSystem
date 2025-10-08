@@ -2,9 +2,10 @@ const Contactus = require("../models/contactus");
 
 async function createContactus(req, res) {
   try {
-    const { related_subject, message } = req.body;
+    const { contact_name, related_subject, message } = req.body;
 
     const contactus = await Contactus.create({
+      contact_name,
       related_subject,
       message,
     });
@@ -42,7 +43,7 @@ async function getContactusById(req, res) {
 async function updateContactus(req, res) {
   try {
     const { id } = req.params;
-    const { related_subject, message } = req.body;
+    const { contact_name, related_subject, message } = req.body;
 
     const contact = await Contactus.findByPk(id);
 
@@ -50,7 +51,7 @@ async function updateContactus(req, res) {
       return res.status(404).json({ error: "Contact message not found" });
     }
 
-    await contact.update({ related_subject, message });
+    await contact.update({ related_subject, message, contact_name });
     res.status(200).json({ success: true, contact });
   } catch (err) {
     res.status(500).json({ error: err.message });

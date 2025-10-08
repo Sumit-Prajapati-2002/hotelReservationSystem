@@ -9,7 +9,7 @@ const roomAmenityRoute = require("./routes/roomamenityRoute");
 const adminRoute = require("./routes/adminRoute");
 const fqaRoute = require("./routes/FQA_Route");
 const serviceRoute = require("./routes/serviceRoute");
-const customerTestimonialRoute = require("./routes/customer_testimonalRoute");
+const customerTestimonialRoute = require("./routes/customerTestimonalRoute");
 const contactusRoute = require("./routes/contactusRoute");
 const hotelAmenityRoute = require("./routes/hotel_amenityRoute");
 const property_infoRoute = require("./routes/property_infoRoute");
@@ -38,7 +38,7 @@ app.use("/booking-history", booking_historyRoute);
 (async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ force: false });
+    await sequelize.sync({ alter: true });
     console.log("database Synced");
   } catch (err) {
     console.error("database connection failed due to", err);

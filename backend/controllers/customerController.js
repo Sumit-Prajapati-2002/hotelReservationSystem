@@ -20,7 +20,9 @@ async function createCustomer(req, res) {
 
 async function getAllCustomers(req, res) {
   try {
-    const customers = await Customer.findAll();
+    const customers = await Customer.findAll({
+      attributes: ["firstname", "email", "phone_no"],
+    });
     res.status(200).json({ success: true, customers });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -94,9 +96,12 @@ async function customerLogin(req, res) {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
     const token = jwt.sign(
-      { id: customer.customer_id, email: customer.email },
+      {
+        id: customer.customer_id,
+        email: customer.email,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
     res.cookie("token", token, {
       httpOnly: true,

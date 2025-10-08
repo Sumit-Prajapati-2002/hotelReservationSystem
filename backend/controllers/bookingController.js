@@ -70,8 +70,8 @@ async function getBookingById(req, res) {
     const booking = await sequelize.query(
       `SELECT 
      b."booking_id",
-     b."checkIn_date",
-     b."checkOut_date",
+     TO_CHAR(b."checkIn_date", 'YYYY-MM-DD') AS "checkIn_date",
+     TO_CHAR(b."checkOut_date",'YYYY-MM-DD') AS "checkOut_date",
      b."status",
      b."total_price",
      b."num_guest",
@@ -81,7 +81,6 @@ async function getBookingById(req, res) {
      COALESCE(
        json_agg(
          json_build_object(
-           'booking_details_id', bd."booking_details_id",
            'room_id', bd."room_id",
            'room_type', r."room_type",
            'price_per_night', r."price_per_night",
@@ -115,15 +114,20 @@ async function getBookingById(req, res) {
 
 async function getAllBookings(req, res) {
   try {
+    const pageNumber = parseInt(req.query.pageNumber) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (pageNumber - 1) * limit;
     const bookings = await sequelize.query(
       `SELECT 
-     b."checkIn_date", 
-     b."checkOut_date", 
+     b."booking_id",
+     TO_CHAR(b."checkIn_date", 'YYYY-MM-DD') AS "checkIn_date", 
+     TO_CHAR(b."checkOut_date", 'YYYY-MM-DD') AS "checkOut_date",
      b."total_price", 
      c."email" AS "customer_email"
    FROM "Booking" AS b
-   LEFT JOIN "Customer" AS c ON b."customer_id" = c."customer_id"`,
-      { type: QueryTypes.SELECT }
+   LEFT JOIN "Customer" AS c ON b."customer_id" = c."customer_id"
+   LIMIT :limit OFFSET :offset`,
+      { replacements: { limit, offset }, type: QueryTypes.SELECT }
     );
 
     res.status(200).json({ success: true, bookings });

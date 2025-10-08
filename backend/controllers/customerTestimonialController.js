@@ -1,11 +1,21 @@
+const jwt = require("jsonwebtoken");
 const CustomerTestimonial = require("../models/customerTestimonal");
+const Customer = require("../models/customer");
 
 async function createCustomerTestimonial(req, res) {
   try {
-    const { comment_name, comment, rating } = req.body;
+    const token = req.cookies.token;
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized: No token found" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const customer = await Customer.findByPk(decoded.id);
+    const fullname = `${customer.firstname} ${customer.lastname}`;
+    const { comment, rating } = req.body;
 
     const customerTestimonial = await CustomerTestimonial.create({
-      comment_name,
+      fullname,
+      customer_id: customer.customer_id,
       comment,
       rating,
     });
@@ -18,7 +28,9 @@ async function createCustomerTestimonial(req, res) {
 
 async function getAllCustomerTestimonials(req, res) {
   try {
-    const testimonials = await CustomerTestimonial.findAll();
+    const testimonials = await CustomerTestimonial.findAll({
+      attributes: ["fullname", "comment", "rating"],
+    });
     res.status(200).json({ success: true, testimonials });
   } catch (err) {
     res.status(500).json({ error: err.message });

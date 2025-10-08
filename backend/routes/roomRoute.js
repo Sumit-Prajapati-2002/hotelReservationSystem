@@ -10,7 +10,7 @@ const {
 } = require("../controllers/roomController");
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 
-router.post("/", createRoom);
+router.post("/", authenticateAdmin,createRoom);
 
 router.get("/", getRooms);
 

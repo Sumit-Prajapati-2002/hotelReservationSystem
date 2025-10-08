@@ -8,8 +8,9 @@ const {
   deleteCustomerTestimonial,
 } = require("../controllers/customerTestimonialController");
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
-router.post("/", createCustomerTestimonial);
-router.get("/",authenticateAdmin, getAllCustomerTestimonials);
+const { authenticateCustomer } = require("../middlewares/authenticationCustomer");
+router.post("/", authenticateCustomer,createCustomerTestimonial);
+router.get("/", getAllCustomerTestimonials);
 router.get("/:id",authenticateAdmin, getCustomerTestimonialById);
 router.put("/:id",authenticateAdmin, updateCustomerTestimonial);
 router.delete("/:id",authenticateAdmin, deleteCustomerTestimonial);

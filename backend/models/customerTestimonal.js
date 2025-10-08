@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
+const Customer = require("./customer");
 const CustomerTestimonial = sequelize.define(
   "CustomerTestimonial",
   {
@@ -9,18 +10,27 @@ const CustomerTestimonial = sequelize.define(
       allowNull: false,
       autoIncrement: true,
     },
-    comment_name:{
-        type:DataTypes.STRING,
-        allowNull: false,
+    fullname: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    comment:{
-        type:DataTypes.STRING,
-        allowNull:false,
+    comment: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    rating:{
-        type:DataTypes.FLOAT,
-        allowNull:false,
-    }
+    rating: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    customer_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Customer,
+        key: "customer_id",
+      },
+      onDelete: "CASCADE",
+    },
   },
   {
     freezeTableName: true,

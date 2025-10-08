@@ -11,7 +11,7 @@ const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 const {
   authenticateCustomer,
 } = require("../middlewares/authenticationCustomer");
-router.post("/", authenticateCustomer, createBookingDetails);
+// router.post("/", authenticateCustomer, createBookingDetails);
 router.get("/", authenticateAdmin, getAllBookingDetails);
 router.get("/:id", authenticateAdmin, getBookingDetailsById);
 router.put("/:id", authenticateAdmin, updateBookingDetails);

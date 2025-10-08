@@ -3,23 +3,23 @@ const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 const { calculateTotalPrice } = require("../services/BookingCalculation");
 
-async function createBookingDetails(req, res) {
-  try {
-    const { booking_id, room_id, offer_id } = req.body;
+// async function createBookingDetails(req, res) {
+//   try {
+//     const { booking_id, room_id, offer_id } = req.body;
 
-    const bookingDetail = await Booking_Details.create({
-      booking_id,
-      room_id,
-      offer_id,
-    });
-    const total_Price = await calculateTotalPrice(booking_id);
-    res
-      .status(201)
-      .json({ success: true, bookingDetail, totalPrice: total_Price });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}
+//     const bookingDetail = await Booking_Details.create({
+//       booking_id,
+//       room_id,
+//       offer_id,
+//     });
+//     const total_Price = await calculateTotalPrice(booking_id);
+//     res
+//       .status(201)
+//       .json({ success: true, bookingDetail, totalPrice: total_Price });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// }
 
 async function getAllBookingDetails(req, res) {
   try {
@@ -138,7 +138,7 @@ async function deleteBookingDetails(req, res) {
 }
 
 module.exports = {
-  createBookingDetails,
+  // createBookingDetails,
   getAllBookingDetails,
   getBookingDetailsById,
   updateBookingDetails,
