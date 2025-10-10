@@ -18,7 +18,7 @@ async function createServices(req, res) {
 }
 
 async function getServices(req, res) {
-  try {
+  try { 
     const services = await Services.findAll();
     res.status(200).json({ success: true, services });
   } catch (err) {

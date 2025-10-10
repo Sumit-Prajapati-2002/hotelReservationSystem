@@ -6,14 +6,13 @@ const {
   getBookingById,
   updateBooking,
   deleteBooking,
-  createGuestBooking,
 } = require("../controllers/bookingController");
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
 const {
   authenticateCustomer,
 } = require("../middlewares/authenticationCustomer");
-router.post("/guest", createGuestBooking);
-router.post("/", authenticateCustomer, createBooking);
+
+router.post("/", createBooking);
 router.get("/", authenticateAdmin, getAllBookings);
 router.get("/:id", authenticateAdmin, getBookingById);
 router.put("/:id", authenticateAdmin, updateBooking);

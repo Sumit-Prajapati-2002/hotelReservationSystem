@@ -6,60 +6,113 @@ const Booking = require("../models/Booking");
 const Customer = require("../models/customer");
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
+const jwt = require("jsonwebtoken");
+
 
 async function createBooking(req, res) {
   const t = await sequelize.transaction();
   try {
-    const { checkIn_date, checkOut_date, rooms, num_guest, customer_id } =
-      req.body;
+    const { checkIn_date, checkOut_date, rooms, num_guest } = req.body;
 
-    if (!rooms || rooms.length === 0)
-      return res
-        .status(400)
-        .json({ error: "At least one room must be selected" });
+    if (!rooms || rooms.length === 0) {
+      return res.status(400).json({ error: "At least one room must be selected" });
+    }
+    if (!checkIn_date || !checkOut_date || !num_guest) {
+      return res.status(400).json({ error: "Check-in, check-out, and number of guests are required" });
+    }
 
-    for (const { room_id } of rooms) {
-      const available = await isRoomAvailable(
-        room_id,
-        checkIn_date,
-        checkOut_date
-      );
-      if (!available) {
-        return res
-          .status(400)
-          .json({ error: `Room ${room_id} is already booked` });
+    const token = req.cookies.token;
+    let customer_id;
+    let customer;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        customer = await Customer.findByPk(decoded.id);
+        if (!customer) throw new Error("Customer not found");
+        customer_id = customer.customer_id;
+      } catch (err) {
+        console.warn("invalid or expired token")
       }
     }
 
-    const booking = await Booking.create(
-      {
-        checkIn_date,
-        checkOut_date,
-        status: "pending",
-        total_price: 0,
-        num_guest,
-        customer_id,
-      },
-      { transaction: t }
-    );
+    if (!customer_id) {
+      const { firstname, lastname, email, phone_no, nationality, citizenship } = req.body;
+
+      if (!firstname || !lastname || !email || !phone_no || !nationality || !citizenship) {
+        return res.status(400).json({
+          error: "Guest must provide firstname, lastname, email, phone number, nationality, and citizenship",
+        });
+      }
+
+      const existingCustomer = await Customer.findOne({ where: { email } });
+      if (existingCustomer && !existingCustomer.guestCheckout) {
+        return res.status(400).json({ error: "This email belongs to a registered user. Please log in." });
+      }
+
+      customer = existingCustomer || await Customer.create({
+        firstname,
+        lastname,
+        email,
+        phone_no,
+        guestCheckout: true,
+        nationality,
+        citizenship,
+        password: null,
+      });
+      customer_id = customer.customer_id;
+    }
+
+
+    for (const { room_id } of rooms) {
+      const available = await isRoomAvailable(room_id, checkIn_date, checkOut_date);
+      if (!available) {
+        return res.status(400).json({ error: `Room ${room_id} is already booked` });
+      }
+    }
+
+
+    const booking = await Booking.create({
+      checkIn_date,
+      checkOut_date,
+      status: "pending",
+      total_price: 0,
+      num_guest,
+      customer_id,
+    }, { transaction: t });
+
 
     for (const { room_id, offer_id } of rooms) {
-      await Booking_Details.create(
-        { booking_id: booking.booking_id, room_id, offer_id: offer_id || null },
-        { transaction: t }
-      );
+      await Booking_Details.create({
+        booking_id: booking.booking_id,
+        room_id,
+        offer_id: offer_id || null,
+      }, { transaction: t });
+
       await Room.update(
         { room_status: "booked" },
         { where: { room_id }, transaction: t }
       );
     }
 
+
     const total = await calculateTotalPrice(booking.booking_id, t);
 
     await t.commit();
-    res.status(201).json({ success: true, booking, total_price: total });
+
+   
+    res.status(201).json({
+      success: true,
+      booking,
+      total_price: total,
+      message: customer.guestCheckout
+        ? "Guest booking created successfully"
+        : "Booking created successfully",
+    });
+
   } catch (err) {
     await t.rollback();
+    console.error("Error creating booking:", err);
     res.status(500).json({ error: err.message });
   }
 }
@@ -206,15 +259,36 @@ async function createGuestBooking(req, res) {
       checkIn_date,
       checkOut_date,
       num_guest,
+      nationality,
+      citizenship,
     } = req.body;
 
-    const guestCustomer = await Customer.create({
-      firstname,
-      lastname,
-      email,
-      phone_no,
-      is_guest: true,
+    let existingCustomer = await Customer.findOne({
+      where: { email },
     });
+
+    let customer;
+
+    if (existingCustomer) {
+      if (!existingCustomer.guestCheckout) {
+        return res
+          .status(400)
+          .json({ error: "This email is already registered. Please log in." });
+      }
+
+      customer = existingCustomer;
+    } else {
+      customer = await Customer.create({
+        firstname,
+        lastname,
+        email,
+        phone_no,
+        guestCheckout: true,
+        nationality,
+        citizenship,
+        password: null,
+      });
+    }
 
     const booking = await Booking.create({
       checkIn_date,
@@ -222,11 +296,12 @@ async function createGuestBooking(req, res) {
       status: "pending",
       total_price: 0,
       num_guest,
-      customer_id: guestCustomer.customer_id,
+      customer_id: customer.customer_id,
     });
 
     res.status(201).json({ success: true, booking });
   } catch (err) {
+    console.error("Error creating guest booking:", err);
     res.status(500).json({ error: err.message });
   }
 }

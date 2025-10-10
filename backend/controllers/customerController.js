@@ -179,6 +179,21 @@ async function customerLogin(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+async function customerLogout(req, res) {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Logged out successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 module.exports = {
   createCustomer,
@@ -187,4 +202,5 @@ module.exports = {
   updateCustomer,
   deleteCustomer,
   customerLogin,
+  customerLogout,
 };
