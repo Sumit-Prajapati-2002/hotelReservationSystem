@@ -1,38 +1,29 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
 const Room_Category = require("./room_category");
+const Room_Amenity = require("./room_amenity");
 
-const Booking_Details = sequelize.define(
-  "Booking_Details",
+const Amenity_Bridge = sequelize.define(
+  "Amenity_Bridge",
   {
-    booking_details_id: {
+    amenity_bridge_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      allowNull: false,
       autoIncrement: true,
     },
-    booking_id: {
+    room_category_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "Booking",
-        key: "booking_id",
+        model: Room_Category,
+        key: "room_category_id",
       },
       onDelete: "CASCADE",
     },
-    room_id: {
+    room_amenity_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "Room",
-        key: "room_id",
-      },
-      onDelete: "CASCADE",
-    },
-    offer_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "Promos_and_Offers",
-        key: "offer_id",
+        model: Room_Amenity,
+        key: "room_amenity_id",
       },
       onDelete: "CASCADE",
     },
@@ -42,4 +33,5 @@ const Booking_Details = sequelize.define(
     timestamps: false,
   }
 );
-module.exports = Booking_Details;
+
+module.exports = Amenity_Bridge;

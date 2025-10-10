@@ -44,7 +44,7 @@ const Booking = sequelize.define(
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
   }
 );
 

@@ -29,7 +29,7 @@ const Property_Info = sequelize.define(
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
   }
 );
 module.exports = Property_Info;

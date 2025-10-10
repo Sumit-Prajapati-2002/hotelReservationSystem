@@ -1,25 +1,24 @@
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 const Room = require("../models/room");
+const Room_Category = require("../models/room_category");
 
+// Create a new room
 async function createRoom(req, res) {
   try {
-    const {
-      price_per_night,
-      capacity,
-      room_type,
-      room_images,
-      room_description,
-      room_amenity_id,
-    } = req.body;
+    const { room_no, room_description, room_status, room_category_id } =
+      req.body;
+
+    if (!room_no || !room_category_id) {
+      return res
+        .status(400)
+        .json({ error: "room_no and room_category_id are required" });
+    }
 
     const room = await Room.create({
-      price_per_night,
-      capacity,
-      room_type,
-      room_images,
-      room_description,
-      room_amenity_id,
+      room_no,
+      room_status: room_status || "available",
+      room_category_id,
     });
 
     res.status(201).json({ success: true, room });
@@ -28,6 +27,7 @@ async function createRoom(req, res) {
   }
 }
 
+// Get paginated list of rooms with category info
 async function getRooms(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -38,13 +38,15 @@ async function getRooms(req, res) {
       `
       SELECT 
         r."room_id",
-        r."room_type",
-        r."price_per_night",
-        r."capacity",
-        r."room_images",
-        r."room_description"
+        r."room_no",
+        r."room_status",
+        rc."category_name",
+        rc."capacity" AS category_capacity,
+        rc."price_per_night" AS category_price,
+        rc."category_description"
       FROM "Room" AS r
-      
+      LEFT JOIN "Room_Category" AS rc
+      ON r."room_category_id" = rc."room_category_id"
       ORDER BY r."room_id" ASC
       LIMIT :limit OFFSET :offset
       `,
@@ -68,6 +70,7 @@ async function getRooms(req, res) {
   }
 }
 
+// Get room by ID with category info
 async function getRoomById(req, res) {
   try {
     const { id } = req.params;
@@ -76,23 +79,19 @@ async function getRoomById(req, res) {
       `
       SELECT 
         r."room_id",
-        r."room_type",
-        r."price_per_night",
-        r."capacity",
-        r."room_images",
+        r."room_no",
+        r."room_status",
         r."room_description",
-        ra."room_amenity_id",
-        ra."room_amenity_name",
-        ra."room_amenity_images"
+        rc."category_name",
+        rc."capacity" AS category_capacity,
+        rc."price_per_night" AS category_price,
+        rc."category_description"
       FROM "Room" AS r
-      LEFT JOIN "Room_Amenity" AS ra
-      ON r."room_amenity_id" = ra."room_amenity_id"
+      LEFT JOIN "Room_Category" AS rc
+      ON r."room_category_id" = rc."room_category_id"
       WHERE r."room_id" = :id
       `,
-      {
-        replacements: { id },
-        type: QueryTypes.SELECT,
-      }
+      { replacements: { id }, type: QueryTypes.SELECT }
     );
 
     if (!room || room.length === 0)
@@ -104,17 +103,19 @@ async function getRoomById(req, res) {
   }
 }
 
+// Update room
 async function updateRoom(req, res) {
   try {
-    const { price_per_night, capacity, room_type, room_images } = req.body;
+    const { room_no, room_description, room_status, room_category_id } =
+      req.body;
     const room = await Room.findByPk(req.params.id);
     if (!room) return res.status(404).json({ error: "Room not found" });
 
     await room.update({
-      price_per_night,
-      capacity,
-      room_type,
-      room_images,
+      room_no: room_no || room.room_no,
+      room_description: room_description || room.room_description,
+      room_status: room_status || room.room_status,
+      room_category_id: room_category_id || room.room_category_id,
     });
 
     res.json({ success: true, room });
@@ -123,6 +124,7 @@ async function updateRoom(req, res) {
   }
 }
 
+// Delete room
 async function deleteRoom(req, res) {
   try {
     const room = await Room.findByPk(req.params.id);

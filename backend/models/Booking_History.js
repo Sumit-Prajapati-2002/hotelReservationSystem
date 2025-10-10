@@ -30,7 +30,7 @@ const Booking_History = sequelize.define(
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
   }
 );
 module.exports = Booking_History;

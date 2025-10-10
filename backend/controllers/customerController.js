@@ -1,18 +1,64 @@
 const Customer = require("../models/customer");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
 async function createCustomer(req, res) {
   try {
-    const { firstname, lastname, email, password, phone_no, guestCheckout } =
-      req.body;
-    const customer = await Customer.create({
+    const {
       firstname,
       lastname,
       email,
       password,
       phone_no,
       guestCheckout,
+      nationality,
+      citizenship,
+    } = req.body;
+
+    const existingCustomer = await Customer.findOne({ where: { email } });
+
+    if (existingCustomer) {
+      if (existingCustomer.guestCheckout) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        await existingCustomer.update({
+          password: hashedPassword,
+          guestCheckout: false,
+          firstname,
+          lastname,
+          phone_no,
+          nationality,
+          citizenship,
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: "Guest upgraded to registered account successfully",
+          customer: existingCustomer,
+        });
+      } else {
+        return res
+          .status(400)
+          .json({ error: "Email already registered. Please log in." });
+      }
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword =
+      !guestCheckout && password ? await bcrypt.hash(password, salt) : null;
+
+    const newCustomer = await Customer.create({
+      firstname,
+      lastname,
+      email,
+      password: hashedPassword,
+      phone_no,
+      guestCheckout,
+      nationality,
+      citizenship,
     });
-    res.status(201).json({ success: true, customer });
+
+    res.status(201).json({ success: true, customer: newCustomer });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -47,22 +93,37 @@ async function getCustomerById(req, res) {
 async function updateCustomer(req, res) {
   try {
     const { id } = req.params;
-    const { firstname, lastname, email, password, phone_no, guestCheckout } =
-      req.body;
-
-    const customer = await Customer.findByPk(id);
-
-    if (!customer) {
-      return res.status(404).json({ error: "Customer not found" });
-    }
-
-    await customer.update({
+    const {
       firstname,
       lastname,
       email,
       password,
       phone_no,
       guestCheckout,
+      nationality,
+      citizenship,
+    } = req.body;
+
+    const customer = await Customer.findByPk(id);
+
+    if (!customer) {
+      return res.status(404).json({ error: "Customer not found" });
+    }
+    const updated_password = customer.password;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      updated_password = await bcrypt.hash(password, salt);
+    }
+
+    await customer.update({
+      firstname,
+      lastname,
+      email,
+      password: updated_password,
+      phone_no,
+      guestCheckout,
+      nationality,
+      citizenship,
     });
 
     res.status(200).json({ success: true, customer });
@@ -92,7 +153,11 @@ async function customerLogin(req, res) {
   try {
     const { email, password } = req.body;
     const customer = await Customer.findOne({ where: { email } });
-    if (!customer || customer.password !== password) {
+    if (!customer || !customer.password) {
+      return res.status(401).json({ message: "Invalid Credentials" });
+    }
+    const isMatch = await bcrypt.compare(password, customer.password);
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid Credentials" });
     }
     const token = jwt.sign(

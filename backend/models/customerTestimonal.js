@@ -34,7 +34,7 @@ const CustomerTestimonial = sequelize.define(
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
   }
 );
 module.exports = CustomerTestimonial;

@@ -1,24 +1,33 @@
-const Room_Amenity = require("../models/room_amenity");
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 
-// Create a new room amenity
+// ✅ Create Amenity
 async function createRoomAmenity(req, res) {
   try {
-    const { room_amenity_name, room_amenity_images } = req.body;
+    const { room_amenity_name, room_amenity_description } = req.body;
 
-    const roomAmenity = await Room_Amenity.create({
-      room_amenity_name,
-      room_amenity_images,
-    });
+    if (!room_amenity_name)
+      return res.status(400).json({ error: "Amenity name is required" });
 
-    res.status(201).json({ success: true, roomAmenity });
+    const [amenity] = await sequelize.query(
+      `
+      INSERT INTO "Room_Amenity" (room_amenity_name, room_amenity_description)
+      VALUES (:room_amenity_name, :room_amenity_description)
+      RETURNING *;
+      `,
+      {
+        replacements: { room_amenity_name, room_amenity_description },
+        type: QueryTypes.INSERT,
+      }
+    );
+
+    res.status(201).json({ success: true, amenity });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// Get all room amenities
+// ✅ Get all amenities
 async function getAllRoomAmenities(req, res) {
   try {
     const amenities = await sequelize.query(
@@ -26,9 +35,9 @@ async function getAllRoomAmenities(req, res) {
       SELECT 
         ra."room_amenity_id",
         ra."room_amenity_name",
-        ra."room_amenity_images"
+        ra."room_amenity_description"
       FROM "Room_Amenity" AS ra
-      ORDER BY ra."room_amenity_id" ASC
+      ORDER BY ra."room_amenity_id" ASC;
       `,
       { type: QueryTypes.SELECT }
     );
@@ -39,7 +48,7 @@ async function getAllRoomAmenities(req, res) {
   }
 }
 
-// Get one room amenity by ID
+// ✅ Get by ID
 async function getRoomAmenityById(req, res) {
   try {
     const { id } = req.params;
@@ -49,19 +58,15 @@ async function getRoomAmenityById(req, res) {
       SELECT 
         ra."room_amenity_id",
         ra."room_amenity_name",
-        ra."room_amenity_images"
+        ra."room_amenity_description"
       FROM "Room_Amenity" AS ra
-      WHERE ra."room_amenity_id" = :id
+      WHERE ra."room_amenity_id" = :id;
       `,
-      {
-        replacements: { id },
-        type: QueryTypes.SELECT,
-      }
+      { replacements: { id }, type: QueryTypes.SELECT }
     );
 
-    if (!amenity || amenity.length === 0) {
+    if (!amenity || amenity.length === 0)
       return res.status(404).json({ error: "Room Amenity not found" });
-    }
 
     res.status(200).json({ success: true, amenity: amenity[0] });
   } catch (err) {
@@ -69,42 +74,56 @@ async function getRoomAmenityById(req, res) {
   }
 }
 
-// Update an amenity
+// ✅ Update
 async function updateRoomAmenity(req, res) {
   try {
     const { id } = req.params;
-    const { room_amenity_name, room_amenity_images } = req.body;
+    const { room_amenity_name, room_amenity_description } = req.body;
 
-    const amenity = await Room_Amenity.findByPk(id);
-    if (!amenity) {
+    const [result] = await sequelize.query(
+      `
+      UPDATE "Room_Amenity"
+      SET room_amenity_name = COALESCE(:room_amenity_name, room_amenity_name),
+          room_amenity_description = COALESCE(:room_amenity_description, room_amenity_description)
+      WHERE room_amenity_id = :id
+      RETURNING *;
+      `,
+      {
+        replacements: { id, room_amenity_name, room_amenity_description },
+        type: QueryTypes.UPDATE,
+      }
+    );
+
+    if (!result || result.length === 0)
       return res.status(404).json({ error: "Room Amenity not found" });
-    }
 
-    await amenity.update({
-      room_amenity_name,
-      room_amenity_images,
-    });
-
-    res.status(200).json({ success: true, amenity });
+    res.status(200).json({ success: true, amenity: result[0] });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// Delete an amenity
+// ✅ Delete
 async function deleteRoomAmenity(req, res) {
   try {
     const { id } = req.params;
-    const amenity = await Room_Amenity.findByPk(id);
 
-    if (!amenity) {
+    const deleted = await sequelize.query(
+      `
+      DELETE FROM "Room_Amenity"
+      WHERE room_amenity_id = :id
+      RETURNING *;
+      `,
+      { replacements: { id }, type: QueryTypes.DELETE }
+    );
+
+    if (!deleted || deleted.length === 0)
       return res.status(404).json({ error: "Room Amenity not found" });
-    }
 
-    await amenity.destroy();
-    res
-      .status(200)
-      .json({ success: true, message: "Room Amenity deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Room Amenity deleted successfully",
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

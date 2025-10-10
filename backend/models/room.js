@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
-const Room_Amenity = require("./room_amenity");
+const Room_Category = require("./room_category");
 
 const Room = sequelize.define(
   "Room",
@@ -8,41 +8,30 @@ const Room = sequelize.define(
     room_id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      allowNull: false,
       autoIncrement: true,
     },
-    price_per_night: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    capacity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    room_type: {
+    room_no: {
       type: DataTypes.STRING,
+      unique: true,
       allowNull: false,
     },
-    room_images: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    room_status: {
+      type: DataTypes.ENUM("available", "booked", "maintenance"),
+      defaultValue: "available",
     },
-    room_description: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    room_amenity_id: {
+    room_category_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: Room_Amenity,
-        key: "room_amenity_id",
+        model: Room_Category,
+        key: "room_category_id",
       },
       onDelete: "CASCADE",
     },
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
   }
 );
+
 module.exports = Room;

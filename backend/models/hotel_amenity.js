@@ -21,7 +21,7 @@ const Hotel_Amenity = sequelize.define(
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
   }
 );
 module.exports = Hotel_Amenity;

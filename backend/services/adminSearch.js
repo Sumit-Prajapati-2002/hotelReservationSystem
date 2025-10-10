@@ -19,9 +19,7 @@ async function searchBookings({
       b."total_price",
       b."num_guest",
       c."firstname",
-      c."lastname",
-      c."phone_no",
-      c."email"
+      c."lastname"
     FROM "Booking" b
     LEFT JOIN "Customer" c ON b."customer_id" = c."customer_id"
     WHERE 1=1

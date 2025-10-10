@@ -7,12 +7,13 @@ async function calculateTotalPrice(booking_id, transaction = null) {
     const bookingItems = await sequelize.query(
       `
       SELECT 
-        r."price_per_night",
+        rc."price_per_night",
         COALESCE(p."discount_percent", 0) AS discount,
         b."checkIn_date",
         b."checkOut_date"
       FROM "Booking_Details" bd
       JOIN "Room" r ON bd."room_id" = r."room_id"
+      JOIN "Room_Category" rc ON r."room_category_id" = rc."room_category_id"
       JOIN "Booking" b ON bd."booking_id" = b."booking_id"
       LEFT JOIN "Promos_and_Offers" p ON bd."offer_id" = p."offer_id"
       WHERE b."booking_id" = :booking_id
@@ -32,22 +33,15 @@ async function calculateTotalPrice(booking_id, transaction = null) {
         Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24))
       );
 
-      const priceAfterDiscount = item.price_per_night * (1 - item.discount / 100);
+      const priceAfterDiscount =
+        item.price_per_night * (1 - (item.discount || 0) / 100);
       totalPrice += priceAfterDiscount * nights;
     }
 
-
-    if (transaction) {
-      await Booking.update(
-        { total_price: totalPrice },
-        { where: { booking_id }, transaction }
-      );
-    } else {
-      await Booking.update(
-        { total_price: totalPrice },
-        { where: { booking_id } }
-      );
-    }
+    await Booking.update(
+      { total_price: totalPrice },
+      { where: { booking_id }, transaction }
+    );
 
     return totalPrice;
   } catch (err) {

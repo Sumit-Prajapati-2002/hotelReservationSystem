@@ -17,10 +17,12 @@ async function createFQA(req, res) {
 
 async function getAllFQA(req, res) {
   try {
-    const fqas = await FQA.findAll();
+    const fqas = await FQA.findAll({
+      attributes: ["question", "answer"],
+    });
     res.status(200).json({ success: true, fqas });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message }); 
   }
 }
 

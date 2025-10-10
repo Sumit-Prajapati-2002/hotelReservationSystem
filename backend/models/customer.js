@@ -38,7 +38,7 @@ const Customer = sequelize.define(
       },
     },
     password: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     phone_no: {
@@ -53,10 +53,25 @@ const Customer = sequelize.define(
         },
       },
     },
+    nationality: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    citizenship: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
   },
   {
     freezeTableName: true,
-    timestamps: true,
+    timestamps: false,
+    validate: {
+      passwordRequiredIfNotGuest() {
+        if (!this.guestCheckout && !this.password) {
+          throw new Error("Password is required for registered users");
+        }
+      },
+    },
   }
 );
 
