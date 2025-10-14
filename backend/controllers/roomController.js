@@ -1,13 +1,18 @@
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 const Room = require("../models/room");
-const Room_Category = require("../models/room_category");
+const { calculateOfferPrice } = require("../services/offerCalculator");
 
-// Create a new room
 async function createRoom(req, res) {
   try {
-    const { room_no, room_description, room_status, room_category_id } =
-      req.body;
+    const {
+      room_no,
+      room_description,
+      room_status,
+      room_category_id,
+      room_capacity,
+      room_images,
+    } = req.body;
 
     if (!room_no || !room_category_id) {
       return res
@@ -19,6 +24,9 @@ async function createRoom(req, res) {
       room_no,
       room_status: room_status || "available",
       room_category_id,
+      room_description,
+      room_capacity,
+      room_images,
     });
 
     res.status(201).json({ success: true, room });
@@ -27,7 +35,6 @@ async function createRoom(req, res) {
   }
 }
 
-// Get paginated list of rooms with category info
 async function getRooms(req, res) {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -40,6 +47,8 @@ async function getRooms(req, res) {
         r."room_id",
         r."room_no",
         r."room_status",
+        r."room_description",
+        rc."room_category_id",
         rc."category_name",
         rc."capacity" AS category_capacity,
         rc."price_per_night" AS category_price,
@@ -56,6 +65,20 @@ async function getRooms(req, res) {
       }
     );
 
+    // Apply offer price to each room’s category
+    const roomsWithOffers = await Promise.all(
+      rooms.map(async (room) => {
+        const offerData = await calculateOfferPrice(room.room_category_id);
+        return {
+          ...room,
+          offer: {
+            discountPercent: offerData.discountPercent,
+            finalPrice: offerData.finalPrice,
+          },
+        };
+      })
+    );
+
     const totalRooms = await Room.count();
 
     res.status(200).json({
@@ -63,14 +86,13 @@ async function getRooms(req, res) {
       currentPage: page,
       totalPages: Math.ceil(totalRooms / limit),
       totalRooms,
-      rooms,
+      rooms: roomsWithOffers,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// Get room by ID with category info
 async function getRoomById(req, res) {
   try {
     const { id } = req.params;
@@ -82,8 +104,9 @@ async function getRoomById(req, res) {
         r."room_no",
         r."room_status",
         r."room_description",
+        rc."room_category_id",
         rc."category_name",
-        rc."capacity" AS category_capacity,
+        r."capacity" AS capacity,
         rc."price_per_night" AS category_price,
         rc."category_description"
       FROM "Room" AS r
@@ -97,13 +120,26 @@ async function getRoomById(req, res) {
     if (!room || room.length === 0)
       return res.status(404).json({ error: "Room not found" });
 
-    res.status(200).json({ success: true, room: room[0] });
+    const data = room[0];
+
+    // Calculate offer for that room’s category
+    const offerData = await calculateOfferPrice(data.room_category_id);
+
+    res.status(200).json({
+      success: true,
+      room: {
+        ...data,
+        offer: {
+          discountPercent: offerData.discountPercent,
+          finalPrice: offerData.finalPrice,
+        },
+      },
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// Update room
 async function updateRoom(req, res) {
   try {
     const { room_no, room_description, room_status, room_category_id } =
@@ -124,7 +160,6 @@ async function updateRoom(req, res) {
   }
 }
 
-// Delete room
 async function deleteRoom(req, res) {
   try {
     const room = await Room.findByPk(req.params.id);

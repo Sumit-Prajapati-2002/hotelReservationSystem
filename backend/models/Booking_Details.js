@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
-const Room_Category = require("./room_category");
+
 
 const Booking_Details = sequelize.define(
   "Booking_Details",
@@ -24,15 +24,6 @@ const Booking_Details = sequelize.define(
       references: {
         model: "Room",
         key: "room_id",
-      },
-      onDelete: "CASCADE",
-    },
-    offer_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: "Promos_and_Offers",
-        key: "offer_id",
       },
       onDelete: "CASCADE",
     },

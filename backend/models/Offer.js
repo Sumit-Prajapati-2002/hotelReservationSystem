@@ -3,7 +3,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
 
 const Offer = sequelize.define(
-  "Promos_and_Offers",
+  "Offer",
   {
     offer_id: {
       type: DataTypes.INTEGER,
@@ -25,6 +25,10 @@ const Offer = sequelize.define(
         min: 0,
         max: 100,
       },
+    },
+    offer_images:{
+      type:DataTypes.STRING,
+      allowNull:true,
     },
     start_date: {
       type: DataTypes.DATE,

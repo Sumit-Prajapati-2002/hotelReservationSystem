@@ -13,10 +13,6 @@ const Room_Category = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    capacity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
     category_description: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -28,6 +24,14 @@ const Room_Category = sequelize.define(
     category_images: {
       type: DataTypes.ARRAY(DataTypes.STRING), // store multiple image URLs
       allowNull: true,
+    },
+    offer_id: {
+      allowNull:true,
+      type: DataTypes.INTEGER,
+      reference: {
+        model: "Offer",
+        key: "offer_id",
+      },
     },
   },
   {
