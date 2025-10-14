@@ -1,43 +1,46 @@
-
 const Room_Category = require("../models/room_category");
 const { calculateOfferPrice } = require("../services/offerCalculator");
 
 async function createRoomCategory(req, res) {
   try {
-    const {
-      category_name,
-      price_per_night,
-      category_description,
-      category_images,
-      offer_id, // allow linking offer directly on creation
-    } = req.body;
+    const { category_name, price_per_night, category_description, offer_id } =
+      req.body;
 
     if (!category_name || !price_per_night) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Handle uploaded images
+    let imageUrls = [];
+    if (req.files && req.files.length > 0) {
+      imageUrls = req.files.map(
+        (file) =>
+          `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+      );
+    } else {
+      return res
+        .status(400)
+        .json({ error: "At least one image must be uploaded" });
+    }
+
+    // Save to DB
     const newCategory = await Room_Category.create({
       category_name,
       price_per_night,
       category_description: category_description || null,
-      category_images: category_images || null,
-      offer_id: offer_id || null, // optional
+      category_images: imageUrls.length > 0 ? imageUrls : null,
+      offer_id: offer_id || null,
     });
-
-    // Calculate and attach offer price if applicable
-    const offerData = await calculateOfferPrice(newCategory.room_category_id);
 
     res.status(201).json({
       success: true,
       category: {
         ...newCategory.toJSON(),
-        offer: {
-          discountPercent: offerData.discountPercent,
-          finalPrice: offerData.finalPrice,
-        },
+        category_images: imageUrls, // return actual URLs
       },
     });
   } catch (err) {
+    console.error("Error creating room category:", err);
     res.status(500).json({ error: err.message });
   }
 }

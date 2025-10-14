@@ -1,6 +1,7 @@
 // routes/roomCategoryRoutes.js
 const express = require("express");
 const router = express.Router();
+const upload = require("../middlewares/uploads");
 
 const {
   createRoomCategory,
@@ -10,7 +11,7 @@ const {
   deleteRoomCategory,
 } = require("../controllers/room_categoryController");
 
-router.post("/", createRoomCategory);
+router.post("/", upload.array("images", 5), createRoomCategory);
 
 router.get("/", getAllRoomCategories);
 
