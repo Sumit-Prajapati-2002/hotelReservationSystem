@@ -1,29 +1,18 @@
-const { searchBookings } = require("../services/adminSearch");
+const { searchBookingsService } = require("../services/adminSearchService");
 
 async function adminSearch(req, res) {
   try {
-    const {
-      checkIn_date,
-      checkOut_date,
-      firstname,
-      lastname,
-      phone_no,
-      email,
-      status,
-    } = req.query;
+    const filters = req.query; // contains all query params
+    const results = await searchBookingsService(filters);
 
-    const results = await searchBookings({
-      checkIn_date,
-      checkOut_date,
-      firstname,
-      lastname,
-      phone_no,
-      email,
-      status,
+    res.status(200).json({
+      success: true,
+      results,
     });
-    res.status(200).json({ success: true, results });
   } catch (err) {
+    console.error("Admin search error:", err);
     res.status(500).json({ error: err.message });
   }
 }
+
 module.exports = { adminSearch };

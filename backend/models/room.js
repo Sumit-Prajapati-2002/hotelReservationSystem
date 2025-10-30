@@ -19,17 +19,17 @@ const Room = sequelize.define(
       type: DataTypes.ENUM("available", "booked", "maintenance"),
       defaultValue: "available",
     },
-    room_capacity:{
-      type:DataTypes.INTEGER,
-      allowNull:false,
+    room_capacity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
-    room_images:{
-      type:DataTypes.STRING,
-      allowNull:false,
+    room_image: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    room_description:{
-      type:DataTypes.STRING,
-      allowNull:true,
+    room_description: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     room_category_id: {
       type: DataTypes.INTEGER,

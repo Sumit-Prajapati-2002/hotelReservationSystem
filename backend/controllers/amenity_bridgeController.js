@@ -1,55 +1,45 @@
-const sequelize = require("../services/database");
-const { QueryTypes } = require("sequelize");
+const {
+  addAmenityToCategory,
+  getAmenitiesByCategory,
+  removeAmenityFromCategory,
+} = require("../services/amenityBridgeService");
 
 async function addAmenitiesToCategories(req, res) {
-  const { room_category_id, room_amenity_id } = req.body;
   try {
-    const [result] = await sequelize.query(
-      `INSERT INTO "Amenity_Bridge" (room_category_id, room_amenity_id)
-       VALUES ($1, $2)
-       RETURNING *`,
-      {
-        bind: [room_category_id, room_amenity_id],
-        type: QueryTypes.INSERT,
-      }
+    const { room_category_id, room_amenity_id } = req.body;
+
+    if (!room_category_id || !room_amenity_id) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const result = await addAmenityToCategory(
+      room_category_id,
+      room_amenity_id
     );
-    res.status(201).json({ message: "Amenity added to category", result });
+    res.status(201).json({ success: true, message: "Amenity added", result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
-async function getAmenitiesByCategory(req, res) {
-  const { room_category_id } = req.params;
+async function getAmenitiesByCategoryController(req, res) {
   try {
-    const amenities = await sequelize.query(
-      `SELECT a.room_amenity_id, a.room_amenity_name, a.room_amenity_description
-       FROM "Amenity_Bridge" ab
-       JOIN "Amenity" a ON ab.room_amenity_id = a.room_amenity_id
-       WHERE ab.room_category_id = $1`,
-      {
-        bind: [room_category_id],
-        type: QueryTypes.SELECT,
-      }
-    );
-    res.status(200).json(amenities);
+    const { room_category_id } = req.params;
+    const amenities = await getAmenitiesByCategory(room_category_id);
+    res.status(200).json({ success: true, amenities });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
-async function removeAmenityFromCategory(req, res) {
-  const { room_category_id, room_amenity_id } = req.body;
+async function removeAmenityFromCategoryController(req, res) {
   try {
-    await sequelize.query(
-      `DELETE FROM "Amenity_Bridge"
-       WHERE room_category_id = $1 AND room_amenity_id = $2`,
-      {
-        bind: [room_category_id, room_amenity_id],
-        type: QueryTypes.DELETE,
-      }
+    const { room_category_id, room_amenity_id } = req.body;
+    const result = await removeAmenityFromCategory(
+      room_category_id,
+      room_amenity_id
     );
-    res.status(200).json({ message: "Amenity removed from category" });
+    res.status(200).json({ success: true, message: result.message });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -57,6 +47,6 @@ async function removeAmenityFromCategory(req, res) {
 
 module.exports = {
   addAmenitiesToCategories,
-  getAmenitiesByCategory,
-  removeAmenityFromCategory,
+  getAmenitiesByCategoryController,
+  removeAmenityFromCategoryController,
 };

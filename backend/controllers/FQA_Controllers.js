@@ -1,14 +1,14 @@
-const FQA = require("../models/FQA");
+const {
+  createFQAService,
+  getAllFQAService,
+  getFQAByIdService,
+  updateFQAService,
+  deleteFQAService,
+} = require("../services/FAQService.js");
 
 async function createFQA(req, res) {
   try {
-    const { question, answer } = req.body;
-
-    const fqa = await FQA.create({
-      question,
-      answer,
-    });
-
+    const fqa = await createFQAService(req.body);
     res.status(201).json({ success: true, fqa });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -17,24 +17,19 @@ async function createFQA(req, res) {
 
 async function getAllFQA(req, res) {
   try {
-    const fqas = await FQA.findAll({
-      attributes: ["question", "answer"],
-    });
+    const fqas = await getAllFQAService();
     res.status(200).json({ success: true, fqas });
   } catch (err) {
-    res.status(500).json({ error: err.message }); 
+    res.status(500).json({ error: err.message });
   }
 }
 
 async function getFQAById(req, res) {
   try {
-    const { id } = req.params;
-    const fqa = await FQA.findByPk(id);
-
+    const fqa = await getFQAByIdService(req.params.id);
     if (!fqa) {
       return res.status(404).json({ error: "FAQ not found" });
     }
-
     res.status(200).json({ success: true, fqa });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -43,17 +38,10 @@ async function getFQAById(req, res) {
 
 async function updateFQA(req, res) {
   try {
-    const { id } = req.params;
-    const { question, answer } = req.body;
-
-    const fqa = await FQA.findByPk(id);
-
+    const fqa = await updateFQAService(req.params.id, req.body);
     if (!fqa) {
       return res.status(404).json({ error: "FAQ not found" });
     }
-
-    await fqa.update({ question, answer });
-
     res.status(200).json({ success: true, fqa });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,14 +50,10 @@ async function updateFQA(req, res) {
 
 async function deleteFQA(req, res) {
   try {
-    const { id } = req.params;
-    const fqa = await FQA.findByPk(id);
-
-    if (!fqa) {
+    const deleted = await deleteFQAService(req.params.id);
+    if (!deleted) {
       return res.status(404).json({ error: "FAQ not found" });
     }
-
-    await fqa.destroy();
     res
       .status(200)
       .json({ success: true, message: "FAQ deleted successfully" });

@@ -1,13 +1,31 @@
 const express = require("express");
 const app = express();
-app.use(express.json());
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
-const cors = require("cors");
-app.use(cors());
+const fs = require("fs");
 const path = require("path");
-
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const sequelize = require("./services/database");
+const config = require("./config/config");
+
+const uploadDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir);
+}
+
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors({
+  origin: "*",//frontend link 
+  credentials: true
+}));
+
+// Serve uploaded files
+app.use("/uploads", express.static(uploadDir));
+
+// Routes
+const uploadRoute = require("./routes/uploadRoute");
 const customerRoute = require("./routes/customerRoute");
 const bookingRoute = require("./routes/bookingRoute");
 const bookingDetailsRoute = require("./routes/bookingdetailsRoute");
@@ -22,10 +40,10 @@ const hotelAmenityRoute = require("./routes/hotel_amenityRoute");
 const property_infoRoute = require("./routes/property_infoRoute");
 const booking_historyRoute = require("./routes/booking_historyRoute");
 const room_categoryRoute = require("./routes/room_categoryRoute");
-const uploadRoute = require("./routes/uploadRoute");
 
-app.use("/uploads", uploadRoute);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/api/upload", uploadRoute);
+
 app.use("/customer", customerRoute);
 app.use("/booking", bookingRoute);
 app.use("/booking-details", bookingDetailsRoute);
@@ -40,15 +58,18 @@ app.use("/hotel-amenity", hotelAmenityRoute);
 app.use("/property-info", property_infoRoute);
 app.use("/booking-history", booking_historyRoute);
 app.use("/room-category", room_categoryRoute);
+
+
 (async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
-    console.log("database Synced");
+    console.log("Database synced");
   } catch (err) {
-    console.error("database connection failed due to", err);
+    console.error("Database connection failed:", err);
   }
 })();
 
-const PORT = process.env.PORT;
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

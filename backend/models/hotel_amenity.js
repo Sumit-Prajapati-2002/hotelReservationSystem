@@ -14,9 +14,13 @@ const Hotel_Amenity = sequelize.define(
         type:DataTypes.STRING,
         allowNull: false,
     },
-    hotel_amenity_images:{
+    hotel_amenity_image:{
         type:DataTypes.STRING,
         allowNull:false,
+    },
+    hotel_amenity_description:{
+      type:DataTypes.STRING,
+      allowNull:false,
     }
   },
   {

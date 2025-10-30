@@ -1,7 +1,7 @@
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 
-async function searchBookings({
+async function searchBookingsService({
   checkIn_date,
   checkOut_date,
   firstname,
@@ -19,7 +19,9 @@ async function searchBookings({
       b."total_price",
       b."num_guest",
       c."firstname",
-      c."lastname"
+      c."lastname",
+      c."phone_no",
+      c."email"
     FROM "Booking" b
     LEFT JOIN "Customer" c ON b."customer_id" = c."customer_id"
     WHERE 1=1
@@ -64,4 +66,4 @@ async function searchBookings({
   return bookings;
 }
 
-module.exports = { searchBookings };
+module.exports = { searchBookingsService };

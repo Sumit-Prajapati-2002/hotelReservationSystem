@@ -1,163 +1,68 @@
-const Room_Category = require("../models/room_category");
-const { calculateOfferPrice } = require("../services/offerCalculator");
+const roomCategoryService = require("../services/roomCategoryService");
 
+/**
+ * Controller Layer (Only handles req/res)
+ */
 async function createRoomCategory(req, res) {
   try {
-    const { category_name, price_per_night, category_description, offer_id } =
-      req.body;
-
-    if (!category_name || !price_per_night) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    // Handle uploaded images
-    let imageUrls = [];
-    if (req.files && req.files.length > 0) {
-      imageUrls = req.files.map(
-        (file) =>
-          `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
-      );
-    } else {
-      return res
-        .status(400)
-        .json({ error: "At least one image must be uploaded" });
-    }
-
-    // Save to DB
-    const newCategory = await Room_Category.create({
-      category_name,
-      price_per_night,
-      category_description: category_description || null,
-      category_images: imageUrls.length > 0 ? imageUrls : null,
-      offer_id: offer_id || null,
-    });
-
-    res.status(201).json({
-      success: true,
-      category: {
-        ...newCategory.toJSON(),
-        category_images: imageUrls, // return actual URLs
-      },
-    });
+    const category = await roomCategoryService.createRoomCategory(req.body, req.files, req);
+    res.status(201).json({ success: true, category });
   } catch (err) {
-    console.error("Error creating room category:", err);
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 }
 
 async function getAllRoomCategories(req, res) {
   try {
-    const categories = await Room_Category.findAll();
-
-    if (!categories || categories.length === 0) {
-      return res.status(404).json({ error: "No room categories found" });
-    }
-
-    // Add offer calculation for each category
-    const categoriesWithOffers = await Promise.all(
-      categories.map(async (category) => {
-        const offerData = await calculateOfferPrice(category.room_category_id);
-        return {
-          ...category.toJSON(),
-          offer: {
-            discountPercent: offerData.discountPercent,
-            finalPrice: offerData.finalPrice,
-          },
-        };
-      })
-    );
-
-    res.status(200).json({ success: true, categories: categoriesWithOffers });
+    const categories = await roomCategoryService.getAllRoomCategories();
+    res.status(200).json({ success: true, categories });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(404).json({ error: err.message });
   }
 }
 
 async function getRoomCategoryById(req, res) {
   try {
-    const { id } = req.params;
-    const category = await Room_Category.findByPk(id);
-
-    if (!category) {
-      return res.status(404).json({ error: "Room category not found" });
-    }
-
-    const offerData = await calculateOfferPrice(category.room_category_id);
-
-    res.status(200).json({
-      success: true,
-      category: {
-        ...category.toJSON(),
-        offer: {
-          discountPercent: offerData.discountPercent,
-          finalPrice: offerData.finalPrice,
-        },
-      },
-    });
+    const category = await roomCategoryService.getRoomCategoryById(req.params.id);
+    res.status(200).json({ success: true, category });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(404).json({ error: err.message });
   }
 }
 
 async function updateRoomCategory(req, res) {
   try {
-    const { id } = req.params;
-    const {
-      category_name,
-      price_per_night,
-      category_description,
-      category_images,
-      offer_id,
-    } = req.body;
-
-    const category = await Room_Category.findByPk(id);
-    if (!category) {
-      return res.status(404).json({ error: "Room category not found" });
-    }
-
-    await category.update({
-      category_name: category_name || category.category_name,
-      price_per_night: price_per_night || category.price_per_night,
-      category_description:
-        category_description || category.category_description,
-      category_images: category_images || category.category_images,
-      offer_id: offer_id || category.offer_id,
-    });
-
-    // Recalculate offer after update
-    const offerData = await calculateOfferPrice(category.room_category_id);
-
-    res.status(200).json({
-      success: true,
-      category: {
-        ...category.toJSON(),
-        offer: {
-          discountPercent: offerData.discountPercent,
-          finalPrice: offerData.finalPrice,
-        },
-      },
-    });
+    const category = await roomCategoryService.updateRoomCategory(req.params.id, req.body);
+    res.status(200).json({ success: true, category });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(404).json({ error: err.message });
   }
 }
 
 async function deleteRoomCategory(req, res) {
   try {
-    const { id } = req.params;
-    const category = await Room_Category.findByPk(id);
-
-    if (!category) {
-      return res.status(404).json({ error: "Room category not found" });
-    }
-
-    await category.destroy();
-    res.status(200).json({
-      success: true,
-      message: "Room category deleted successfully",
-    });
+    await roomCategoryService.deleteRoomCategory(req.params.id);
+    res.status(200).json({ success: true, message: "Room category deleted successfully" });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(404).json({ error: err.message });
+  }
+}
+
+async function getRoomsByCategory(req, res) {
+  try {
+    const data = await roomCategoryService.getRoomsByCategory(req.params.categoryId);
+    res.status(200).json({ success: true, ...data });
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+}
+
+async function getCategoriesWithOffers(req, res) {
+  try {
+    const categories = await roomCategoryService.getCategoriesWithOffers();
+    res.status(200).json({ success: true, categories });
+  } catch (err) {
+    res.status(404).json({ error: err.message });
   }
 }
 
@@ -167,4 +72,6 @@ module.exports = {
   getRoomCategoryById,
   updateRoomCategory,
   deleteRoomCategory,
+  getRoomsByCategory,
+  getCategoriesWithOffers,
 };
