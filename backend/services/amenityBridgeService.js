@@ -1,19 +1,30 @@
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 
-async function addAmenityToCategory(room_category_id, room_amenity_id) {
-  const [result] = await sequelize.query(
-    `INSERT INTO "Amenity_Bridge" (room_category_id, room_amenity_id)
-     VALUES ($1, $2)
-     RETURNING *`,
-    {
-      bind: [room_category_id, room_amenity_id],
-      type: QueryTypes.INSERT,
-    }
-  );
-  return result;
+// Add single or multiple amenities
+async function addAmenityToCategory(room_category_id, room_amenity_ids) {
+  if (!Array.isArray(room_amenity_ids)) {
+    room_amenity_ids = [room_amenity_ids];
+  }
+
+  const results = [];
+  for (const amenity_id of room_amenity_ids) {
+    const [result] = await sequelize.query(
+      `INSERT INTO "Amenity_Bridge" (room_category_id, room_amenity_id)
+       VALUES ($1, $2)
+       ON CONFLICT DO NOTHING
+       RETURNING *`,
+      {
+        bind: [room_category_id, amenity_id],
+        type: QueryTypes.INSERT,
+      }
+    );
+    results.push(result);
+  }
+  return results;
 }
 
+// Get amenities for a category
 async function getAmenitiesByCategory(room_category_id) {
   const amenities = await sequelize.query(
     `SELECT a.room_amenity_id, a.room_amenity_name, a.room_amenity_description
@@ -28,16 +39,22 @@ async function getAmenitiesByCategory(room_category_id) {
   return amenities;
 }
 
-async function removeAmenityFromCategory(room_category_id, room_amenity_id) {
+// Remove single or multiple amenities
+async function removeAmenityFromCategory(room_category_id, room_amenity_ids) {
+  if (!Array.isArray(room_amenity_ids)) {
+    room_amenity_ids = [room_amenity_ids];
+  }
+
   await sequelize.query(
     `DELETE FROM "Amenity_Bridge"
-     WHERE room_category_id = $1 AND room_amenity_id = $2`,
+     WHERE room_category_id = $1 AND room_amenity_id = ANY($2::int[])`,
     {
-      bind: [room_category_id, room_amenity_id],
+      bind: [room_category_id, room_amenity_ids],
       type: QueryTypes.DELETE,
     }
   );
-  return { message: "Amenity removed successfully" };
+
+  return { message: "Amenity(s) removed successfully" };
 }
 
 module.exports = {

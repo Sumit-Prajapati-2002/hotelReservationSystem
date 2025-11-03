@@ -1,40 +1,40 @@
-const FQA = require("../models/FQA");
+const FAQ = require("../models/FAQ");
 
-async function createFQAService(data) {
-  return await FQA.create(data);
+async function createFAQService(data) {
+  return await FAQ.create(data);
 }
 
-async function getAllFQAService() {
-  return await FQA.findAll({
+async function getAllFAQService() {
+  return await FAQ.findAll({
     attributes: ["question", "answer"],
     limit: 5,
   });
 }
 
-async function getFQAByIdService(id) {
-  return await FQA.findByPk(id);
+async function getFAQByIdService(id) {
+  return await FAQ.findByPk(id);
 }
 
-async function updateFQAService(id, data) {
-  const fqa = await FQA.findByPk(id);
-  if (!fqa) return null;
+async function updateFAQService(id, data) {
+  const faq = await FAQ.findByPk(id);
+  if (!faq) return null;
 
-  await fqa.update(data);
-  return fqa;
+  await faq.update(data);
+  return faq;
 }
 
-async function deleteFQAService(id) {
-  const fqa = await FQA.findByPk(id);
-  if (!fqa) return null;
+async function deleteFAQService(id) {
+  const faq = await FAQ.findByPk(id);
+  if (!faq) return null;
 
-  await fqa.destroy();
+  await faq.destroy();
   return true;
 }
 
 module.exports = {
-  createFQAService,
-  getAllFQAService,
-  getFQAByIdService,
-  updateFQAService,
-  deleteFQAService,
+  createFAQService,
+  getAllFAQService,
+  getFAQByIdService,
+  updateFAQService,
+  deleteFAQService,
 };

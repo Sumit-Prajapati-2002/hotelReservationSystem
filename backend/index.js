@@ -12,14 +12,10 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({
-  origin: "*",//frontend link 
-  credentials: true
-}));
+app.use(cors());
 
 // Serve uploaded files
 app.use("/uploads", express.static(uploadDir));
@@ -40,8 +36,7 @@ const hotelAmenityRoute = require("./routes/hotel_amenityRoute");
 const property_infoRoute = require("./routes/property_infoRoute");
 const booking_historyRoute = require("./routes/booking_historyRoute");
 const room_categoryRoute = require("./routes/room_categoryRoute");
-
-
+const amenityBridgeRoute = require("./routes/amenityBridgeRoute");
 app.use("/api/upload", uploadRoute);
 
 app.use("/customer", customerRoute);
@@ -50,8 +45,9 @@ app.use("/booking-details", bookingDetailsRoute);
 app.use("/room", roomRoute);
 app.use("/offer", offerRoute);
 app.use("/room-amenity", roomAmenityRoute);
+app.use("/amenity-bridge", amenityBridgeRoute);
 app.use("/admin", adminRoute);
-app.use("/FQA", fqaRoute);
+app.use("/FAQ", fqaRoute);
 app.use("/customer-testimonial", customerTestimonialRoute);
 app.use("/contact-us", contactusRoute);
 app.use("/hotel-amenity", hotelAmenityRoute);
@@ -59,17 +55,15 @@ app.use("/property-info", property_infoRoute);
 app.use("/booking-history", booking_historyRoute);
 app.use("/room-category", room_categoryRoute);
 
-
 (async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: false });
     console.log("Database synced");
   } catch (err) {
     console.error("Database connection failed:", err);
   }
 })();
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

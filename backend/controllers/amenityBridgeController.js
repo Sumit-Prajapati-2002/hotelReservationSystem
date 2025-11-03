@@ -4,10 +4,10 @@ const {
   removeAmenityFromCategory,
 } = require("../services/amenityBridgeService");
 
+// Add amenities
 async function addAmenitiesToCategories(req, res) {
   try {
     const { room_category_id, room_amenity_id } = req.body;
-
     if (!room_category_id || !room_amenity_id) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -16,12 +16,15 @@ async function addAmenitiesToCategories(req, res) {
       room_category_id,
       room_amenity_id
     );
-    res.status(201).json({ success: true, message: "Amenity added", result });
+    res
+      .status(201)
+      .json({ success: true, message: "Amenity(s) added", result });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
 
+// Get amenities by category
 async function getAmenitiesByCategoryController(req, res) {
   try {
     const { room_category_id } = req.params;
@@ -32,6 +35,7 @@ async function getAmenitiesByCategoryController(req, res) {
   }
 }
 
+// Remove amenities
 async function removeAmenityFromCategoryController(req, res) {
   try {
     const { room_category_id, room_amenity_id } = req.body;
