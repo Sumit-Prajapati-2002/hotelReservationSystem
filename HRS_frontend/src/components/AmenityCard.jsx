@@ -1,10 +1,5 @@
-interface AmenityCardProps {
-  name: string;
-  desc: string;
-  image: string;
-}
 
-export default function AmenityCard({ name, image, desc }: AmenityCardProps) {
+export default function AmenityCard({ name, image, desc }) {
   return (
     <div className="relative h-64 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition group">
       <img

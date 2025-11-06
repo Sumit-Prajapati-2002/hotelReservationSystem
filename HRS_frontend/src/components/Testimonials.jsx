@@ -5,35 +5,23 @@ import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import TestimonialCard from "./TestimonialCard"; // ✅ Import the card
 
-interface Testimonial {
-  fullname: string;
-  comment: string;
-  rating: number;
-}
-
-interface TestimonialResponse {
-  success: boolean;
-  testimonials: Testimonial[];
-}
-
 export default function Testimonials() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
 
-  // ✅ Fetch testimonials
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await axios.get<TestimonialResponse>(
+        const res = await axios.get(
           "http://localhost:3000/customer-testimonial"
         );
         if (!res.data.success) throw new Error("Failed to load testimonials");
         setTestimonials(res.data.testimonials);
-      } catch (err: any) {
+      } catch (err) {
         setError(err.message || "Something went wrong");
       } finally {
         setLoading(false);

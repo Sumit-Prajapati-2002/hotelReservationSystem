@@ -1,76 +1,39 @@
-import AmenityCard from "./AmenityCard";
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Grid3x3, LayoutGrid } from "lucide-react";
-export interface Amenity {
-  name: string;
-  desc: string;
-  image: string;
-}
+import axios from "axios";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import AmenityCard from "./AmenityCard";
 
 export default function HotelAmenities() {
-  const amenities = [
-    {
-      name: "Free High-Speed WiFi",
-      desc: "Stay connected throughout your stay",
-      image:
-        "https://images.unsplash.com/photo-1484807352052-23338990c6c6?w=800&q=80",
-    },
-    {
-      name: "Fine Dining Restaurant",
-      desc: "Award-winning cuisine and service",
-      image:
-        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80",
-    },
-    {
-      name: "Valet Parking",
-      desc: "Complimentary parking service",
-      image:
-        "https://images.unsplash.com/photo-1590674899484-d5640e854abe?w=800&q=80",
-    },
-    {
-      name: "Fitness Center",
-      desc: "24/7 state-of-the-art gym",
-      image:
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80",
-    },
-    {
-      name: "Infinity Pool",
-      desc: "Rooftop pool with stunning views",
-      image:
-        "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=800&q=80",
-    },
-    {
-      name: "Lounge & Bar",
-      desc: "Premium drinks and ambiance",
-      image:
-        "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=800&q=80",
-    },
-    {
-      name: "Spa & Wellness",
-      desc: "Relax and rejuvenate",
-      image:
-        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&q=80",
-    },
-    {
-      name: "Conference Rooms",
-      desc: "Modern business facilities",
-      image:
-        "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
-    },
-  ];
-
+  const [amenities, setAmenities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
 
+  // ✅ Fetch amenities from API
+  useEffect(() => {
+    const fetchAmenities = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/hotel-amenity");
+        if (!res.data.success) throw new Error("Failed to load amenities");
+        setAmenities(res.data.amenities);
+      } catch (err) {
+        setError(
+          err.message || "Something went wrong while fetching amenities"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAmenities();
+  }, []);
+
+  // 🧩 Responsive items per view
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setItemsPerView(1);
-      } else if (window.innerWidth < 1024) {
-        setItemsPerView(2);
-      } else {
-        setItemsPerView(3);
-      }
+      if (window.innerWidth < 768) setItemsPerView(1);
+      else if (window.innerWidth < 1024) setItemsPerView(2);
+      else setItemsPerView(3);
     };
 
     handleResize();
@@ -80,20 +43,25 @@ export default function HotelAmenities() {
 
   const maxIndex = Math.max(0, amenities.length - itemsPerView);
 
-  const nextSlide = () => {
+  const nextSlide = () =>
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  };
 
-  const prevSlide = () => {
+  const prevSlide = () =>
     setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
-  };
 
+  // 🕒 Auto-slide every 5 seconds
   useEffect(() => {
     if (amenities.length > itemsPerView) {
       const interval = setInterval(nextSlide, 5000);
       return () => clearInterval(interval);
     }
-  }, [currentIndex, maxIndex, itemsPerView]);
+  }, [currentIndex, amenities.length, itemsPerView]);
+
+  // 🧭 Loading / Error states
+  if (loading)
+    return <div className="text-center py-10">Loading amenities...</div>;
+  if (error)
+    return <div className="text-center py-10 text-red-500">{error}</div>;
 
   return (
     <section
@@ -122,7 +90,7 @@ export default function HotelAmenities() {
             >
               {amenities.map((amenity, idx) => (
                 <div
-                  key={idx}
+                  key={amenity.hotel_amenity_id}
                   className="flex-shrink-0"
                   style={{
                     width: `calc(${100 / itemsPerView}% - ${
@@ -130,7 +98,11 @@ export default function HotelAmenities() {
                     }px)`,
                   }}
                 >
-                  <AmenityCard {...amenity} />
+                  <AmenityCard
+                    name={amenity.hotel_amenity_name}
+                    image={amenity.hotel_amenity_image}
+                    desc={amenity.hotel_amenity_description}
+                  />
                 </div>
               ))}
             </div>

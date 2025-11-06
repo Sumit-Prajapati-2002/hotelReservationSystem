@@ -16,8 +16,8 @@ router.post(
   upload.single("hotel_amenity_image"),
   createHotelAmenity
 );
-router.get("/", authenticateAdmin, getAllHotelAmenities);
-router.get("/:id", authenticateAdmin, getHotelAmenityById);
+router.get("/", getAllHotelAmenities);
+router.get("/:id", getHotelAmenityById);
 router.put("/:id", authenticateAdmin, updateHotelAmenity);
 router.delete("/:id", authenticateAdmin, deleteHotelAmenity);
 
