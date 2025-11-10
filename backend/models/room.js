@@ -1,6 +1,7 @@
-const { DataTypes, DatabaseError } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const sequelize = require("../services/database");
-const Room_Category = require("./room_category");
+const Room_Amenity = require("./RoomAmenity");
+const Room_Catagory = require("./RoomCategory");
 
 const Room = sequelize.define(
   "Room",
@@ -10,39 +11,39 @@ const Room = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+    room_catagory_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "Room_Catagory",
+        key: "room_catagory_id",
+      },
+    },
     room_no: {
       type: DataTypes.STRING,
+      allowNull: false,
       unique: true,
+    },
+    room_description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    capacity: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     room_status: {
-      type: DataTypes.ENUM("available", "booked", "maintenance"),
-      defaultValue: "available",
+      type: DataTypes.ENUM("Not-Available", "Available"),
+      defaultValue: "Available",
     },
-    room_capacity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    room_image: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    room_description: {
+    room_images: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    room_category_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: Room_Category,
-        key: "room_category_id",
-      },
-      onDelete: "CASCADE",
-    },
   },
   {
-    freezeTableName: true,
     timestamps: false,
+    freezeTableName: true,
   }
 );
 

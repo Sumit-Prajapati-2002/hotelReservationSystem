@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config/config");
-const CustomerTestimonial = require("../models/customerTestimonal");
-const Customer = require("../models/customer");
+const CustomerTestimonial = require("../models/CustomerTestimonials");
+const Customer = require("../models/Customer");
 
 async function createCustomerTestimonialService(token, data) {
   if (!token) {

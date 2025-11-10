@@ -1,6 +1,6 @@
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
-const Room = require("../models/room");
+const Room = require("../models/Room");
 const { calculateOfferPrice } = require("../services/offerCalculator");
 
 // ✅ Create room

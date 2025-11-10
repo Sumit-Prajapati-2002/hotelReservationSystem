@@ -78,8 +78,8 @@ export default function HotelAmenities() {
           </p>
         </div>
 
-        <div className="relative px-12">
-          <div className="overflow-hidden">
+        <div className="relative ">
+          <div className="overflow-hidden px-12">
             <div
               className="flex transition-transform duration-500 ease-out gap-6"
               style={{

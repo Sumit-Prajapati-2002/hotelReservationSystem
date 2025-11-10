@@ -1,0 +1,26 @@
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('FAQ', {
+      FQA_id: {
+        type: Sequelize.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        allowNull: false,
+      },
+      question: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      answer: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('FAQ');
+  },
+};

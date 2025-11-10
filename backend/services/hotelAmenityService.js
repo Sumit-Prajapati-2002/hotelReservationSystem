@@ -1,4 +1,4 @@
-const Hotel_Amenity = require("../models/hotel_amenity");
+const Hotel_Amenity = require("../models/HotelAmenity");
 
 async function createHotelAmenityService(req) {
   const { hotel_amenity_name, hotel_amenity_description } = req.body;

@@ -33,7 +33,6 @@ const fqaRoute = require("./routes/FQA_Route");
 const customerTestimonialRoute = require("./routes/customerTestimonalRoute");
 const contactusRoute = require("./routes/contactusRoute");
 const hotelAmenityRoute = require("./routes/hotel_amenityRoute");
-const property_infoRoute = require("./routes/property_infoRoute");
 const booking_historyRoute = require("./routes/booking_historyRoute");
 const room_categoryRoute = require("./routes/room_categoryRoute");
 const amenityBridgeRoute = require("./routes/amenityBridgeRoute");
@@ -51,7 +50,6 @@ app.use("/FAQ", fqaRoute);
 app.use("/customer-testimonial", customerTestimonialRoute);
 app.use("/contact-us", contactusRoute);
 app.use("/hotel-amenity", hotelAmenityRoute);
-app.use("/property-info", property_infoRoute);
 app.use("/booking-history", booking_historyRoute);
 app.use("/room-category", room_categoryRoute);
 

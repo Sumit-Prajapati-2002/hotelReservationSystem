@@ -1,4 +1,4 @@
-const Room_Category = require("../models/room_category");
+const Room_Category = require("../models/RoomCategory");
 const { calculateOfferPrice } = require("../services/offerCalculator");
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");

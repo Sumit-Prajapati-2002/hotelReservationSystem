@@ -1,4 +1,4 @@
-const Admin = require("../models/admin");
+const Admin = require("../models/Admin");
 
 async function createAdminService(data) {
   return await Admin.create(data);

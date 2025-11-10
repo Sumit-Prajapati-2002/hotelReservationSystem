@@ -1,9 +1,9 @@
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 const Booking = require("../models/Booking");
-const Booking_Details = require("../models/Booking_Details");
-const Room = require("../models/room");
-const Customer = require("../models/customer");
+const Booking_Details = require("../models/BookingDetails");
+const Room = require("../models/Room");
+const Customer = require("../models/Customer");
 const { isRoomAvailable } = require("./RoomAvailability");
 const { calculateTotalPrice } = require("./BookingCalculation");
 const jwt = require("jsonwebtoken");
