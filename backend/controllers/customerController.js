@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const Customer = require("../models/Customer");
 const {
   findCustomerByEmail,
   createNewCustomer,
@@ -121,8 +122,8 @@ async function customerLogin(req, res) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production", // false in dev
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       maxAge: 60 * 60 * 1000,
     });
 
@@ -136,8 +137,8 @@ async function customerLogout(req, res) {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production", // false in dev
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     });
 
     res.status(200).json({ success: true, message: "Logged out successfully" });
@@ -145,6 +146,27 @@ async function customerLogout(req, res) {
     res.status(500).json({ error: err.message });
   }
 }
+
+async function getCustomerProfile(req, res) {
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // ✅ Use Sequelize model instead of raw db.query
+    const customer = await Customer.findByPk(decoded.id);
+
+    if (!customer)
+      return res.status(404).json({ message: "Customer not found" });
+
+    res.json({ success: true, customer });
+  } catch (err) {
+    res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
+module.exports = { getCustomerProfile };
 
 module.exports = {
   createCustomer,
@@ -154,4 +176,5 @@ module.exports = {
   deleteCustomer,
   customerLogin,
   customerLogout,
+  getCustomerProfile,
 };

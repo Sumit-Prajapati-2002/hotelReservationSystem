@@ -1,28 +1,28 @@
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Rooms from "./components/Room";
-import HotelAmenities from "./components/HotelAmenities";
-import Testimonials from "./components/Testimonials";
-import AboutUs from "./components/AboutUs";
-import ContactUs from "./components/ContactUs";
-import Footer from "./components/Footer";
-import FAQSection from "./components/FAQSection";
-export default function HotelLandingPage() {
-  const scrollToSection = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
+import { Routes, Route } from "react-router-dom";
+import HotelLandingPage from "./HotelLandingPage";
+import RoomDetailsPageWrapper from "./pages/RoomDetailsPageWrapper";
+import roomCategories from "./components/RoomCategory"; // your room data
+import AvailableRoomsPageWrapper from "./pages/AvailableRoomsPageWrapper";
+import FormPageWraper from "./pages/FormWrapperPage";
+import CustomerRegister from "./pages/CustomerRegister";
+import CustomerLogin from "./pages/CustomerLogin";;
+import AdminLogin from "./pages/AdminLogin";
+export default function App() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar scrollToSection={scrollToSection} />
-      <Hero scrollToSection={scrollToSection} />
-      <Rooms />
-      <HotelAmenities />
-      <Testimonials />
-      <FAQSection />  
-      <AboutUs />
-      <ContactUs />
-      <Footer scrollToSection={scrollToSection} />
-    </div>
+    <Routes>
+      <Route path="/customer-login" element={<CustomerLogin />} />
+      <Route path="/customer-register" element={<CustomerRegister />} />
+      <Route path="/" element={<HotelLandingPage />} />
+      <Route
+        path="/room-category/:categoryId/rooms"
+        element={<AvailableRoomsPageWrapper roomCategories={roomCategories} />}
+      />
+      <Route
+        path="/room-category/:categoryId"
+        element={<RoomDetailsPageWrapper roomCategories={roomCategories} />}
+      />
+      <Route path="/form/:roomId" element={<FormPageWraper />} />
+      <Route path="/admin-login" element={<AdminLogin />} />
+    </Routes>
   );
 }

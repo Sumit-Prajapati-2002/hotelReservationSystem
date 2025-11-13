@@ -66,16 +66,59 @@ async function getAllRoomCategories() {
  * Get single room category by ID with offer
  */
 async function getRoomCategoryById(id) {
-  const category = await Room_Category.findByPk(id);
-  if (!category) throw new Error("Room category not found");
+  // Fetch category with joined amenities
+  const result = await sequelize.query(
+    `
+    SELECT 
+      rc."room_category_id",
+      rc."category_name",
+      rc."category_description",
+      rc."price_per_night",
+      rc."category_images",
+      ra."room_amenity_id",
+      ra."room_amenity_name",
+      ra."room_amenity_description"
+    FROM "Room_Category" AS rc
+    LEFT JOIN "Amenity_Bridge" AS ab
+      ON rc."room_category_id" = ab."room_category_id"
+    LEFT JOIN "Room_Amenity" AS ra
+      ON ab."room_amenity_id" = ra."room_amenity_id"
+    WHERE rc."room_category_id" = :id;
+    `,
+    { replacements: { id }, type: QueryTypes.SELECT }
+  );
 
-  const offerData = await calculateOfferPrice(category.room_category_id);
+  if (!result || result.length === 0)
+    throw new Error("Room category not found");
+
+  // Extract category info from first row
+  const categoryInfo = {
+    room_category_id: result[0].room_category_id,
+    category_name: result[0].category_name,
+    category_description: result[0].category_description,
+    price_per_night: result[0].price_per_night,
+    category_images: result[0].category_images || [],
+  };
+
+  // Extract amenities
+  const amenities = result
+    .filter((row) => row.room_amenity_id)
+    .map((row) => ({
+      room_amenity_id: row.room_amenity_id,
+      room_amenity_name: row.room_amenity_name,
+      room_amenity_description: row.room_amenity_description,
+    }));
+
+  // Add offer info
+  const offerData = await calculateOfferPrice(categoryInfo.room_category_id);
+
   return {
-    ...category.toJSON(),
+    ...categoryInfo,
     offer: {
       discountPercent: offerData.discountPercent,
       finalPrice: offerData.finalPrice,
     },
+    amenities,
   };
 }
 
@@ -143,6 +186,9 @@ async function getRoomsByCategory(categoryId) {
     }
   );
 
+  // Count the number of rooms
+  const totalRooms = rooms.length;
+
   const offerData = await calculateOfferPrice(categoryId);
 
   return {
@@ -153,6 +199,7 @@ async function getRoomsByCategory(categoryId) {
         discountPercent: offerData.discountPercent,
         finalPrice: offerData.finalPricePerNight,
       },
+      totalRooms, // added total rooms here
     },
     rooms,
   };

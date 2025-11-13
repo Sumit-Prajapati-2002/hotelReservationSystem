@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import RoomCard from "./RoomCard";
+import RoomCategoryCard from "./RoomCategoryCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import SliderDots from "./SliderDots";
 
-export default function Rooms() {
+export default function RoomCategory() {
   const [roomCategories, setRoomCategories] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch rooms
+  // ✅ Fetch Rooms
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -33,9 +33,10 @@ export default function Rooms() {
   if (error)
     return <div className="text-center py-10 text-red-600">{error}</div>;
 
-  // Slider navigation
+  // ✅ Slider Navigation
   const nextSlide = () =>
     setCurrentIndex((prev) => (prev + 1) % roomCategories.length);
+
   const prevSlide = () =>
     setCurrentIndex(
       (prev) => (prev - 1 + roomCategories.length) % roomCategories.length
@@ -43,15 +44,15 @@ export default function Rooms() {
 
   return (
     <section id="rooms" className="py-20 px-4 bg-white overflow-hidden">
-      <div className="max-w-2xl mx-auto text-center relative">
+      <div className="max-w-3xl mx-auto text-center relative">
         <h2 className="text-4xl font-bold mb-4 text-gray-900">Our Rooms</h2>
         <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
           Discover our carefully designed rooms, each offering unique comfort
           and style for your perfect stay.
         </p>
 
-        {/* Slider container */}
-        <div className="relative ">
+        {/* ✅ Slider Container */}
+        <div className="relative overflow-hidden">
           <div
             className="flex transition-transform duration-500 ease-in-out"
             style={{
@@ -63,7 +64,8 @@ export default function Rooms() {
                 key={room.room_category_id}
                 className="flex-shrink-0 w-full px-4"
               >
-                <RoomCard
+                <RoomCategoryCard
+                  id={room.room_category_id}
                   name={room.category_name}
                   description={room.category_description}
                   image={room.category_images?.[0]}
@@ -77,7 +79,7 @@ export default function Rooms() {
             ))}
           </div>
 
-          {/* Slider Controls */}
+          {/* ✅ Slider Controls */}
           <button
             onClick={prevSlide}
             className="absolute left-0 top-1/2 -translate-y-1/2 bg-white border border-gray-300 p-3 rounded-full shadow hover:bg-gray-100 transition"
@@ -91,7 +93,7 @@ export default function Rooms() {
             <ChevronRight className="w-5 h-5 text-gray-800" />
           </button>
 
-          {/* Dots */}
+          {/* ✅ Slider Dots */}
           <div className="mt-6">
             <SliderDots
               totalSlides={roomCategories.length}

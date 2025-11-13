@@ -11,12 +11,12 @@ const Room = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    room_catagory_id: {
+    room_category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "Room_Catagory",
-        key: "room_catagory_id",
+        model: "Room_Category",
+        key: "room_category_id",
       },
     },
     room_no: {
@@ -28,15 +28,15 @@ const Room = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    capacity: {
+    room_capacity: {
       type: DataTypes.STRING,
       allowNull: false,
     },
     room_status: {
-      type: DataTypes.ENUM("Not-Available", "Available"),
+      type: DataTypes.STRING,
       defaultValue: "Available",
     },
-    room_images: {
+    room_image: {
       type: DataTypes.STRING,
       allowNull: true,
     },
