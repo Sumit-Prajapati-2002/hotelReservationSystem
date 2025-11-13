@@ -1,12 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import HotelLandingPage from "./HotelLandingPage";
+import HotelLandingPage from "./pages/HotelLandingPage";
 import RoomDetailsPageWrapper from "./pages/RoomDetailsPageWrapper";
 import roomCategories from "./components/RoomCategory"; // your room data
 import AvailableRoomsPageWrapper from "./pages/AvailableRoomsPageWrapper";
 import FormPageWraper from "./pages/FormWrapperPage";
 import CustomerRegister from "./pages/CustomerRegister";
-import CustomerLogin from "./pages/CustomerLogin";;
+import CustomerLogin from "./pages/CustomerLogin";
 import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 export default function App() {
   return (
     <Routes>
@@ -23,6 +24,7 @@ export default function App() {
       />
       <Route path="/form/:roomId" element={<FormPageWraper />} />
       <Route path="/admin-login" element={<AdminLogin />} />
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
     </Routes>
   );
 }
