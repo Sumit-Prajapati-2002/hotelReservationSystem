@@ -131,6 +131,7 @@ async function createBookingService(body, token) {
 /**
  * Fetch booking by ID
  */
+
 async function getBookingByIdService(id) {
   const query = `
     SELECT 
@@ -149,7 +150,7 @@ async function getBookingByIdService(id) {
             'room_id', r."room_id",
             'category_name', rc."category_name",
             'price_per_night', rc."price_per_night",
-            'capacity', rc."capacity",
+            'capacity', r."room_capacity",
             'offer_title', o."offer_title",
             'discount_percent', o."discount_percent"
           )
@@ -161,20 +162,20 @@ async function getBookingByIdService(id) {
     LEFT JOIN "Booking_Details" AS bd ON bd."booking_id" = b."booking_id"
     LEFT JOIN "Room" AS r ON bd."room_id" = r."room_id"
     LEFT JOIN "Room_Category" AS rc ON r."room_category_id" = rc."room_category_id"
-    LEFT JOIN "Promos_and_Offers" AS o ON bd."offer_id" = o."offer_id"
+    LEFT JOIN "Offer" AS o ON rc."offer_id" = o."offer_id"
     WHERE b."booking_id" = :id
-    GROUP BY b."booking_id", c."firstname", c."lastname", c."email';
+    GROUP BY b."booking_id", c."firstname", c."lastname", c."email"
   `;
 
   const booking = await sequelize.query(query, {
     replacements: { id },
     type: QueryTypes.SELECT,
   });
+
   if (!booking || booking.length === 0) throw new Error("Booking not found");
 
   return booking[0];
 }
-
 
 async function getAllBookingsService(pageNumber = 1, limit = 10) {
   const offset = (pageNumber - 1) * limit;

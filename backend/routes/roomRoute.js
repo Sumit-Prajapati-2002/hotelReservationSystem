@@ -17,7 +17,7 @@ router.post("/", authenticateAdmin, upload.single("room_image"), createRoom);
 router.get("/", getRooms);
 
 // Get room by ID
-router.get("/:id", getRoomById);
+router.get("/:id", authenticateAdmin, getRoomById);
 
 // Update room (optional new image)
 router.put("/:id", authenticateAdmin, upload.single("room_image"), updateRoom);

@@ -5,7 +5,9 @@ async function createHotelAmenityService(req) {
 
   let hotel_amenity_image = null;
   if (req.file) {
-    hotel_amenity_image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    hotel_amenity_image = `${req.protocol}://${req.get("host")}/uploads/${
+      req.file.filename
+    }`;
   }
 
   const amenity = await Hotel_Amenity.create({
@@ -24,7 +26,6 @@ async function getAllHotelAmenitiesService() {
 async function getHotelAmenityByIdService(id) {
   return await Hotel_Amenity.findByPk(id);
 }
-
 async function updateHotelAmenityService(req) {
   const { id } = req.params;
   const { hotel_amenity_name, hotel_amenity_description } = req.body;
@@ -34,7 +35,9 @@ async function updateHotelAmenityService(req) {
 
   let hotel_amenity_image = amenity.hotel_amenity_image;
   if (req.file) {
-    hotel_amenity_image = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+    hotel_amenity_image = `${req.protocol}://${req.get("host")}/uploads/${
+      req.file.filename
+    }`;
   }
 
   await amenity.update({

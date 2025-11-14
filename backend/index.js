@@ -15,10 +15,21 @@ if (!fs.existsSync(uploadDir)) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+const allowedOrigins = ["http://localhost:5174", "http://localhost:5173"];
+
 app.use(
   cors({
-    origin: "http://localhost:5174", // your React dev server
-    credentials: true, // allow cookies to be sent
+    origin: function (origin, callback) {
+      // allow requests like Postman or server-to-server (no origin)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 

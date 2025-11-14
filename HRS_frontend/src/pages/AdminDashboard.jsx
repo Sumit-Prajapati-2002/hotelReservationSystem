@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Users,
   Calendar,
@@ -12,6 +12,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import DashboardCards from "../Admin Components/DashboardCards";
 import UsersSection from "../Admin Components/UserSection";
@@ -23,28 +24,80 @@ import FAQSection from "../Admin Components/FAQSection";
 import OffersSection from "../Admin Components/OffersSection";
 import TestimonialsSection from "../Admin Components/TestimonialsSection";
 import ContactSection from "../Admin Components/ContactSection";
+import RoomAmenitiesManager from "../Admin Components/RoomAmenitiesManager";
+import AssignAmenitiesToCategory from "../Admin Components/AssignAmenitiesToCategory";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState("dashboard");
+  const [activeSection, setActiveSection] = useState(
+    localStorage.getItem("activeSection") || "dashboard"
+  );
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [admin, setAdmin] = useState(null);
 
+  // Add AmenitiesSection to the imports
+
+  // Inside menuItems, add a new key for Hotel Amenities (if not already)
   const menuItems = [
     { name: "Dashboard", icon: Home, key: "dashboard" },
     { name: "Users", icon: Users, key: "users" },
     { name: "Bookings", icon: Calendar, key: "bookings" },
     { name: "Room Categories", icon: Tag, key: "roomCategories" },
     { name: "Rooms", icon: BookOpen, key: "rooms" },
-    { name: "Amenities", icon: Settings, key: "amenities" },
+    { name: "Hotel Amenities", icon: Settings, key: "hotel_amenities" }, // new
+    { name: "Room Amenities", icon: Settings, key: "room_amenities" },
+    { name: "Assign Amenities", icon: Settings, key: "assignAmenities" },
     { name: "FAQs", icon: MessageSquare, key: "faq" },
     { name: "Offers", icon: Tag, key: "offers" },
     { name: "Testimonials", icon: Users, key: "testimonials" },
     { name: "Contact Us", icon: MessageSquare, key: "contact" },
   ];
 
-  const handleLogout = () => {
-    navigate("/admin-login");
+  // Save last opened section
+  useEffect(() => {
+    localStorage.setItem("activeSection", activeSection);
+  }, [activeSection]);
+
+  // Check admin authentication
+  useEffect(() => {
+    const checkAdminAuth = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/admin/me", {
+          withCredentials: true,
+        });
+        if (res.data.success) {
+          setIsAuthenticated(true);
+          setAdmin(res.data.admin);
+        } else {
+          navigate("/admin-login");
+        }
+      } catch (err) {
+        console.error("Admin auth failed", err);
+        navigate("/admin-login");
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAdminAuth();
+  }, [navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3000/admin/logout",
+        {},
+        { withCredentials: true }
+      );
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      localStorage.removeItem("activeSection");
+      navigate("/admin-login");
+    }
   };
 
+  // In renderSection(), return the correct component for each key
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":
@@ -57,8 +110,12 @@ export default function AdminDashboard() {
         return <RoomCategoriesSection />;
       case "rooms":
         return <RoomsSection />;
-      case "amenities":
-        return <AmenitiesSection />;
+      case "hotel_amenities":
+        return <AmenitiesSection />; // Hotel Amenities manager
+      case "room_amenities":
+        return <RoomAmenitiesManager />; // Room amenities manager
+      case "assignAmenities":
+        return <AssignAmenitiesToCategory />; // Assign to category
       case "faq":
         return <FAQSection />;
       case "offers":
@@ -71,6 +128,16 @@ export default function AdminDashboard() {
         return null;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen flex bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
@@ -97,6 +164,7 @@ export default function AdminDashboard() {
             ))}
           </ul>
         </div>
+
         <button
           onClick={handleLogout}
           className="flex items-center gap-2 p-3 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all"
@@ -112,9 +180,6 @@ export default function AdminDashboard() {
           <h1 className="text-3xl font-bold text-gray-900 capitalize">
             {activeSection}
           </h1>
-          <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl font-semibold shadow-lg transition-all">
-            Add New {activeSection}
-          </button>
         </div>
 
         {renderSection()}

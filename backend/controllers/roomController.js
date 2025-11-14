@@ -26,9 +26,8 @@ async function updateRoom(req, res) {
 
 async function getRooms(req, res) {
   try {
-    const { page, limit } = req.query;
-    const result = await getRoomsService(parseInt(page), parseInt(limit));
-    res.status(200).json({ success: true, ...result });
+    const rooms = await getRoomsService();
+    res.status(200).json({ success: true, rooms });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

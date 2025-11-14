@@ -124,7 +124,7 @@ async function customerLogin(req, res) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // false in dev
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 60 * 60 * 1000,
+      maxAge: 24*60 * 60 * 1000,
     });
 
     res.status(200).json({ success: true, token });
@@ -166,7 +166,7 @@ async function getCustomerProfile(req, res) {
   }
 }
 
-module.exports = { getCustomerProfile };
+
 
 module.exports = {
   createCustomer,

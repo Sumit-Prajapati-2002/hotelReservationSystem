@@ -18,7 +18,13 @@ router.post(
 );
 router.get("/", getAllHotelAmenities);
 router.get("/:id", getHotelAmenityById);
-router.put("/:id", authenticateAdmin, updateHotelAmenity);
+router.put(
+  "/:id",
+  authenticateAdmin,
+  upload.single("hotel_amenity_image"), // <-- add this
+  updateHotelAmenity
+);
+
 router.delete("/:id", authenticateAdmin, deleteHotelAmenity);
 
 module.exports = router;

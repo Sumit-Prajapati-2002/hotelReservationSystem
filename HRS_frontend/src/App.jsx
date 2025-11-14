@@ -8,6 +8,9 @@ import CustomerRegister from "./pages/CustomerRegister";
 import CustomerLogin from "./pages/CustomerLogin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import BookingDetails from "./pages/BookingDetails";
+import RoomCategoryForm from "./Admin Components/RoomCategoryForm";
+
 export default function App() {
   return (
     <Routes>
@@ -25,6 +28,9 @@ export default function App() {
       <Route path="/form/:roomId" element={<FormPageWraper />} />
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/booking/:bookingId" element={<BookingDetails />} />
+      <Route path="/room-category/add" element={<RoomCategoryForm />} />
+      <Route path="/room-category/edit/:id" element={<RoomCategoryForm />} />
     </Routes>
   );
 }

@@ -4,18 +4,24 @@ import { useState, useEffect } from "react";
 import { Edit2, Trash2, PlusCircle, X, Check } from "lucide-react";
 import axios from "axios";
 
-export default function AdminAmenities() {
+export default function AmenitiesSection() {
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [newAmenity, setNewAmenity] = useState({ name: "", description: "" });
+  const [newAmenity, setNewAmenity] = useState({
+    name: "",
+    description: "",
+    image: null,
+  });
   const [editingAmenity, setEditingAmenity] = useState(null);
+
+  const BASE_URL = "http://localhost:3000/hotel-amenity";
 
   // Fetch all amenities
   const fetchAmenities = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:3000/hotel-amenities");
-      setAmenities(res.data);
+      const res = await axios.get(BASE_URL);
+      setAmenities(Array.isArray(res.data.amenities) ? res.data.amenities : []);
     } catch (err) {
       console.error(err);
       alert("Failed to fetch amenities");
@@ -35,15 +41,16 @@ export default function AdminAmenities() {
     const formData = new FormData();
     formData.append("hotel_amenity_name", newAmenity.name);
     formData.append("hotel_amenity_description", newAmenity.description);
-    if (newAmenity.image) formData.append("file", newAmenity.image);
+    if (newAmenity.image)
+      formData.append("hotel_amenity_image", newAmenity.image); // match backend
 
     try {
-      const res = await axios.post(
-        "http://localhost:3000/hotel-amenity",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-      setAmenities([...amenities, res.data]);
+      const res = await axios.post(BASE_URL, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
+      // res.data.amenity contains the new object
+      setAmenities([...amenities, res.data.amenity]);
       setNewAmenity({ name: "", description: "", image: null });
     } catch (err) {
       console.error(err);
@@ -54,8 +61,8 @@ export default function AdminAmenities() {
   // Delete amenity
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:3000/hotel-amenity/${id}`);
-      setAmenities(amenities.filter((a) => a.id !== id));
+      await axios.delete(`${BASE_URL}/${id}`, { withCredentials: true });
+      setAmenities(amenities.filter((a) => a.hotel_amenity_id !== id));
     } catch (err) {
       console.error(err);
       alert("Failed to delete amenity");
@@ -64,28 +71,41 @@ export default function AdminAmenities() {
 
   // Start editing
   const handleEditStart = (amenity) => {
-    setEditingAmenity(amenity);
+    setEditingAmenity({ ...amenity });
   };
 
   // Save edited amenity
   const handleEditSave = async () => {
+    if (!editingAmenity) return;
+
     const formData = new FormData();
-    formData.append("hotel_amenity_name", editingAmenity.hotel_amenity_name);
+    formData.append(
+      "hotel_amenity_name",
+      editingAmenity.hotel_amenity_name || ""
+    );
     formData.append(
       "hotel_amenity_description",
-      editingAmenity.hotel_amenity_description
+      editingAmenity.hotel_amenity_description || ""
     );
-    if (editingAmenity.image) formData.append("file", editingAmenity.image);
+    if (editingAmenity.image)
+      formData.append("hotel_amenity_image", editingAmenity.image);
 
     try {
       const res = await axios.put(
-        `http://localhost:3000/hotel-amenity/${editingAmenity.id}`,
+        `${BASE_URL}/${editingAmenity.hotel_amenity_id}`,
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
       );
-
+      // Merge updated amenity using res.data.amenity
       setAmenities(
-        amenities.map((a) => (a.id === editingAmenity.id ? res.data : a))
+        amenities.map((a) =>
+          a.hotel_amenity_id === editingAmenity.hotel_amenity_id
+            ? { ...a, ...res.data.amenity }
+            : a
+        )
       );
       setEditingAmenity(null);
     } catch (err) {
@@ -96,6 +116,7 @@ export default function AdminAmenities() {
 
   return (
     <div>
+      {/* Add Amenity Form */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Hotel Amenities</h2>
         <div className="flex gap-2">
@@ -139,14 +160,14 @@ export default function AdminAmenities() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {amenities.map((amenity) => (
             <div
-              key={amenity.id}
+              key={amenity.hotel_amenity_id} // safe unique key
               className="p-6 bg-white rounded-2xl shadow-lg flex justify-between items-center transition-transform hover:scale-105"
             >
-              {editingAmenity?.id === amenity.id ? (
+              {editingAmenity?.hotel_amenity_id === amenity.hotel_amenity_id ? (
                 <div className="flex flex-col gap-2 w-full">
                   <input
                     type="text"
-                    value={editingAmenity.hotel_amenity_name}
+                    value={editingAmenity.hotel_amenity_name || ""}
                     onChange={(e) =>
                       setEditingAmenity({
                         ...editingAmenity,
@@ -157,7 +178,7 @@ export default function AdminAmenities() {
                   />
                   <input
                     type="text"
-                    value={editingAmenity.hotel_amenity_description}
+                    value={editingAmenity.hotel_amenity_description || ""}
                     onChange={(e) =>
                       setEditingAmenity({
                         ...editingAmenity,
@@ -184,11 +205,19 @@ export default function AdminAmenities() {
                   <p className="text-gray-500 mt-1">
                     {amenity.hotel_amenity_description}
                   </p>
+                  {amenity.hotel_amenity_image && (
+                    <img
+                      src={amenity.hotel_amenity_image}
+                      alt={amenity.hotel_amenity_name}
+                      className="mt-2 w-32 h-20 object-cover rounded-lg"
+                    />
+                  )}
                 </div>
               )}
 
               <div className="flex gap-3">
-                {editingAmenity?.id === amenity.id ? (
+                {editingAmenity?.hotel_amenity_id ===
+                amenity.hotel_amenity_id ? (
                   <>
                     <button
                       onClick={handleEditSave}
@@ -212,7 +241,7 @@ export default function AdminAmenities() {
                       <Edit2 />
                     </button>
                     <button
-                      onClick={() => handleDelete(amenity.id)}
+                      onClick={() => handleDelete(amenity.hotel_amenity_id)}
                       className="text-red-600 hover:text-red-800"
                     >
                       <Trash2 />

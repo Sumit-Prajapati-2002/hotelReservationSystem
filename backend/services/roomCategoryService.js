@@ -125,16 +125,25 @@ async function getRoomCategoryById(id) {
 /**
  * Update a room category
  */
-async function updateRoomCategory(id, data) {
+async function updateRoomCategory(id, data, files, req) {
   const category = await Room_Category.findByPk(id);
   if (!category) throw new Error("Room category not found");
+
+  // Handle uploaded images
+  let imageUrls = category.category_images || [];
+  if (files && files.length > 0) {
+    // map uploaded files to URLs
+    imageUrls = files.map(
+      (file) => `${req.protocol}://${req.get("host")}/uploads/${file.filename}`
+    );
+  }
 
   await category.update({
     category_name: data.category_name || category.category_name,
     price_per_night: data.price_per_night || category.price_per_night,
     category_description:
       data.category_description || category.category_description,
-    category_images: data.category_images || category.category_images,
+    category_images: imageUrls, // ✅ replace old images if new ones uploaded
     offer_id: data.offer_id || category.offer_id,
   });
 

@@ -13,7 +13,14 @@ const {
   getCategoriesWithOffers,
 } = require("../controllers/room_categoryController");
 
-router.post("/", upload.array("images", 5), createRoomCategory);
+const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
+
+router.post(
+  "/",
+  upload.array("images", 5),
+  authenticateAdmin,
+  createRoomCategory
+);
 
 router.get("/", getAllRoomCategories);
 
@@ -21,9 +28,14 @@ router.get("/offers", getCategoriesWithOffers);
 
 router.get("/:id", getRoomCategoryById);
 
-router.put("/:id", updateRoomCategory);
+router.put(
+  "/:id",
+  upload.array("images", 5),
+  authenticateAdmin,
+  updateRoomCategory
+);
 
-router.delete("/:id", deleteRoomCategory);
+router.delete("/:id", authenticateAdmin, deleteRoomCategory);
 
 router.get("/:categoryId/rooms", getRoomsByCategory);
 
