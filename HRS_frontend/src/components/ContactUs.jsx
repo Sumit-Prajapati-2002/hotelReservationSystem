@@ -76,9 +76,9 @@ export default function ContactSection() {
                   Address
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  123 Ocean Drive, Paradise Bay
+                  New Baneshwor,Kathmandu
                   <br />
-                  Miami, FL 33139, USA
+                  Ward 18
                 </p>
               </div>
             </div>
@@ -89,7 +89,7 @@ export default function ContactSection() {
               </div>
               <div>
                 <h3 className="font-bold text-xl mb-2 text-gray-900">Phone</h3>
-                <p className="text-gray-600">+1 (555) 123-4567</p>
+                <p className="text-gray-600">(+977)9841143456</p>
               </div>
             </div>
 

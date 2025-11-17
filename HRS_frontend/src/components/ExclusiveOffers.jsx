@@ -80,7 +80,7 @@ export default function ExclusiveOffers() {
         <div className="relative">
           <div className="overflow-hidden px-12">
             <div
-              className="flex transition-transform duration-500 ease-out gap-6"
+              className="flex transition-transform duration-500 ease-out gap-6 p-2"
               style={{
                 transform: `translateX(-${
                   currentIndex * (100 / itemsPerView)

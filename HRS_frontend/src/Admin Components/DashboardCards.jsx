@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Users, Calendar, Tag, CreditCard } from "lucide-react";
+import { Users, Calendar, Tag } from "lucide-react";
 import axios from "axios";
 
 export default function DashboardCards() {
@@ -44,21 +44,18 @@ export default function DashboardCards() {
       value: data.totalUsers,
       icon: Users,
       color: "from-blue-500 to-blue-600",
-      change: "+12%",
     },
     {
       title: "Active Bookings",
       value: data.activeBookings,
       icon: Calendar,
       color: "from-green-500 to-emerald-600",
-      change: "+8%",
     },
     {
       title: "Active Offers",
       value: data.activeOffers,
       icon: Tag,
       color: "from-amber-500 to-orange-600",
-      change: "+3%",
     },
   ];
 
@@ -75,9 +72,7 @@ export default function DashboardCards() {
             >
               <card.icon size={28} className="text-white" />
             </div>
-            <span className="text-green-600 font-bold text-sm bg-green-50 px-3 py-1 rounded-full">
-              {card.change}
-            </span>
+            
           </div>
 
           <h3 className="text-gray-600 font-semibold mb-1">{card.title}</h3>

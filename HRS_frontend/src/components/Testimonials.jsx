@@ -74,7 +74,7 @@ export default function Testimonials() {
         <div className="relative px-4 md:px-12">
           <div className="overflow-hidden">
             <div
-              className="flex transition-transform duration-500 ease-out gap-8"
+              className="flex transition-transform duration-500 ease-out gap-8 p-4"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
               {Array.from({ length: totalSlides }).map((_, slideIdx) => (
