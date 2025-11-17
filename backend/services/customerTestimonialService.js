@@ -27,9 +27,7 @@ async function createCustomerTestimonialService(token, data) {
 }
 
 async function getAllCustomerTestimonialsService() {
-  return await CustomerTestimonial.findAll({
-    attributes: ["fullname", "comment", "rating"],
-  });
+  return await CustomerTestimonial.findAll({});
 }
 
 async function getCustomerTestimonialByIdService(id) {

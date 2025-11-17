@@ -9,7 +9,9 @@ import CustomerLogin from "./pages/CustomerLogin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import BookingDetails from "./pages/BookingDetails";
-import RoomCategoryForm from "./Admin Components/RoomCategoryForm";
+import RoomCategoryForm from "./Admin Components/RoomCategoryModal";
+import BookingHistory from "./pages/BookingHistory";
+import Confirmation from "./pages/Confirmation";
 
 export default function App() {
   return (
@@ -29,8 +31,8 @@ export default function App() {
       <Route path="/admin-login" element={<AdminLogin />} />
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
       <Route path="/booking/:bookingId" element={<BookingDetails />} />
-      <Route path="/room-category/add" element={<RoomCategoryForm />} />
-      <Route path="/room-category/edit/:id" element={<RoomCategoryForm />} />
+      <Route path="/booking-history" element={<BookingHistory />} />
+      <Route path="/confirmation" element={<Confirmation />} />
     </Routes>
   );
 }

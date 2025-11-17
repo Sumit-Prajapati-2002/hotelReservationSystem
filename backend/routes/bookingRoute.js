@@ -8,9 +8,7 @@ const {
   deleteBooking,
 } = require("../controllers/bookingController");
 const { authenticateAdmin } = require("../middlewares/authenticationAdmin");
-const {
-  authenticateCustomer,
-} = require("../middlewares/authenticationCustomer");
+
 
 router.post("/", createBooking);
 router.get("/", authenticateAdmin, getAllBookings);

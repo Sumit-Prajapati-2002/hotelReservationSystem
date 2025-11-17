@@ -88,6 +88,7 @@ export default function RoomDetails({ categoryId, onBack }) {
               <img
                 src={category.category_images[currentImageIndex]}
                 alt={`${category.category_name} Image ${currentImageIndex + 1}`}
+                key={`${category.category_images[currentImageIndex]}-${currentImageIndex}`}
                 className="w-full h-full object-cover"
               />
               {category.category_images.length > 1 && (
@@ -128,9 +129,9 @@ export default function RoomDetails({ categoryId, onBack }) {
                 Amenities
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {category.amenities.map((amenity) => (
+                {category.amenities.map((amenity, index) => (
                   <div
-                    key={amenity.room_amenity_id}
+                    key={`${amenity.room_amenity_id}-${index}`} // unique key
                     className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
                   >
                     <h4 className="font-semibold text-gray-900">

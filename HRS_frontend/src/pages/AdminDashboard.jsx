@@ -10,6 +10,7 @@ import {
   BookOpen,
   Tag,
   MessageSquare,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -17,7 +18,7 @@ import axios from "axios";
 import DashboardCards from "../Admin Components/DashboardCards";
 import UsersSection from "../Admin Components/UserSection";
 import BookingsSection from "../Admin Components/BookingSection";
-import RoomCategoriesSection from "../Admin Components/RoomCategories";
+import RoomCategoriesSection from "../Admin Components/RoomCategoriesSection";
 import RoomsSection from "../Admin Components/RoomsSection";
 import AmenitiesSection from "../Admin Components/AmenitiesSection";
 import FAQSection from "../Admin Components/FAQSection";
@@ -29,23 +30,22 @@ import AssignAmenitiesToCategory from "../Admin Components/AssignAmenitiesToCate
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+
   const [activeSection, setActiveSection] = useState(
     localStorage.getItem("activeSection") || "dashboard"
   );
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [admin, setAdmin] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Add AmenitiesSection to the imports
-
-  // Inside menuItems, add a new key for Hotel Amenities (if not already)
+  // MENU ITEMS
   const menuItems = [
     { name: "Dashboard", icon: Home, key: "dashboard" },
     { name: "Users", icon: Users, key: "users" },
     { name: "Bookings", icon: Calendar, key: "bookings" },
     { name: "Room Categories", icon: Tag, key: "roomCategories" },
     { name: "Rooms", icon: BookOpen, key: "rooms" },
-    { name: "Hotel Amenities", icon: Settings, key: "hotel_amenities" }, // new
+    { name: "Hotel Amenities", icon: Settings, key: "hotel_amenities" },
     { name: "Room Amenities", icon: Settings, key: "room_amenities" },
     { name: "Assign Amenities", icon: Settings, key: "assignAmenities" },
     { name: "FAQs", icon: MessageSquare, key: "faq" },
@@ -54,21 +54,20 @@ export default function AdminDashboard() {
     { name: "Contact Us", icon: MessageSquare, key: "contact" },
   ];
 
-  // Save last opened section
   useEffect(() => {
     localStorage.setItem("activeSection", activeSection);
   }, [activeSection]);
 
-  // Check admin authentication
+  // AUTH CHECK
   useEffect(() => {
     const checkAdminAuth = async () => {
       try {
         const res = await axios.get("http://localhost:3000/admin/me", {
           withCredentials: true,
         });
+
         if (res.data.success) {
           setIsAuthenticated(true);
-          setAdmin(res.data.admin);
         } else {
           navigate("/admin-login");
         }
@@ -79,9 +78,11 @@ export default function AdminDashboard() {
         setLoading(false);
       }
     };
+
     checkAdminAuth();
   }, [navigate]);
 
+  // LOGOUT
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
     }
   };
 
-  // In renderSection(), return the correct component for each key
+  // SWITCH COMPONENTS
   const renderSection = () => {
     switch (activeSection) {
       case "dashboard":
@@ -111,11 +112,11 @@ export default function AdminDashboard() {
       case "rooms":
         return <RoomsSection />;
       case "hotel_amenities":
-        return <AmenitiesSection />; // Hotel Amenities manager
+        return <AmenitiesSection />;
       case "room_amenities":
-        return <RoomAmenitiesManager />; // Room amenities manager
+        return <RoomAmenitiesManager />;
       case "assignAmenities":
-        return <AssignAmenitiesToCategory />; // Assign to category
+        return <AssignAmenitiesToCategory />;
       case "faq":
         return <FAQSection />;
       case "offers":
@@ -125,64 +126,90 @@ export default function AdminDashboard() {
       case "contact":
         return <ContactSection />;
       default:
-        return null;
+        return <DashboardCards />;
     }
   };
 
-  if (loading) {
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Loading...</p>
       </div>
     );
-  }
 
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-2xl rounded-tr-3xl rounded-br-3xl p-6 flex flex-col justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-amber-600 mb-8">
-            Admin Panel
-          </h2>
-          <ul className="space-y-4">
+    <div className="min-h-screen flex bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* SIDEBAR */}
+      <div
+        className={`${
+          sidebarOpen ? "w-72" : "w-20"
+        } bg-gradient-to-b from-gray-900 to-gray-800 shadow-2xl transition-all duration-300 flex flex-col`}
+      >
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-8">
+            {sidebarOpen && (
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                Admin Panel
+              </h2>
+            )}
+
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="text-white hover:text-amber-400 transition-colors"
+            >
+              {sidebarOpen ? <X size={24} /> : <Settings size={24} />}
+            </button>
+          </div>
+
+          <ul className="space-y-2">
             {menuItems.map((item) => (
               <li
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
-                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 ${
+                className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-300 group ${
                   activeSection === item.key
-                    ? "bg-gradient-to-r from-amber-600 to-orange-500 text-white shadow-lg"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg scale-105"
+                    : "text-gray-300 hover:bg-gray-700/50 hover:text-white"
                 }`}
               >
-                <item.icon className="w-5 h-5" />
-                <span className="font-semibold">{item.name}</span>
+                <item.icon
+                  className={`${
+                    sidebarOpen ? "w-5 h-5" : "w-6 h-6 mx-auto"
+                  } group-hover:scale-110 transition-transform`}
+                />
+
+                {sidebarOpen && (
+                  <span className="font-semibold">{item.name}</span>
+                )}
               </li>
             ))}
           </ul>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 p-3 text-red-600 font-semibold rounded-xl hover:bg-red-50 transition-all"
-        >
-          <LogOut size={18} />
-          Logout
-        </button>
+        {/* LOGOUT */}
+        <div className="mt-auto p-6">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 p-3 w-full text-red-400 hover:text-red-300 font-semibold rounded-xl hover:bg-gray-700/50 transition-all"
+          >
+            <LogOut size={18} />
+            {sidebarOpen && "Logout"}
+          </button>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-10">
-        <div className="flex justify-between items-center mb-10">
-          <h1 className="text-3xl font-bold text-gray-900 capitalize">
+      {/* MAIN CONTENT */}
+      <div className="flex-1 p-8 overflow-y-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 capitalize mb-2">
             {activeSection}
           </h1>
+          <div className="h-1 w-24 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"></div>
         </div>
 
-        {renderSection()}
+        <div className="animate-fadeIn">{renderSection()}</div>
       </div>
     </div>
   );

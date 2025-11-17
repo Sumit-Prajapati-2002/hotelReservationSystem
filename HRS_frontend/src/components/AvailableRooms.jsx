@@ -60,7 +60,13 @@ export default function AvailableRooms({ categoryId }) {
           {rooms.map((room) => (
             <div
               key={room.room_id}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition cursor-pointer flex flex-col md:flex-row"
+              className={`bg-white rounded-2xl shadow-lg overflow-hidden transition flex flex-col md:flex-row
+                ${
+                  room.room_status !== "Available"
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:shadow-2xl"
+                }
+              `}
             >
               {/* Image */}
               <img
@@ -80,16 +86,35 @@ export default function AvailableRooms({ categoryId }) {
                     Capacity:{" "}
                     <span className="text-amber-600">{room.room_capacity}</span>
                   </p>
-                  <p className="text-green-600 font-medium">
+                  <p
+                    className={`font-medium ${
+                      room.room_status === "Available"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
                     Status: {room.room_status}
                   </p>
                 </div>
 
                 <button
-                  onClick={() => navigate(`/form/${room.room_id}`)}
-                  className="mt-4 w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white py-3 px-6 rounded-xl font-bold text-lg transition shadow-md hover:shadow-xl self-start"
+                  onClick={() => {
+                    if (room.room_status === "Available") {
+                      navigate(`/form/${room.room_id}`);
+                    }
+                  }}
+                  disabled={room.room_status !== "Available"}
+                  className={`mt-4 w-full md:w-auto py-3 px-6 rounded-xl font-bold text-lg transition shadow-md self-start 
+                    ${
+                      room.room_status === "Available"
+                        ? "bg-amber-600 hover:bg-amber-700 text-white"
+                        : "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    }
+                  `}
                 >
-                  Book Now
+                  {room.room_status === "Available"
+                    ? "Book Now"
+                    : "Not Available"}
                 </button>
               </div>
             </div>

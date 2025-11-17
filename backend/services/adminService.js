@@ -1,5 +1,5 @@
 const Admin = require("../models/Admin");
-
+const sequelize = require("../services/database");
 async function createAdminService(data) {
   return await Admin.create(data);
 }
@@ -29,6 +29,32 @@ async function deleteAdminService(id) {
 async function getAdminByEmailService(email) {
   return await Admin.findOne({ where: { email } });
 }
+async function getAdminDashboardService() {
+  try {
+    // Total users
+    const [totalUsersResult] = await sequelize.query(
+      `SELECT COUNT(*) AS "totalUsers" FROM "Customer"` // quoted
+    );
+    const totalUsers = totalUsersResult[0].totalUsers;
+
+    // Active bookings
+    const [activeBookingsResult] = await sequelize.query(
+      `SELECT COUNT(*) AS "activeBookings" FROM "Booking" WHERE status = 'booked'` // quoted
+    );
+    const activeBookings = activeBookingsResult[0].activeBookings;
+
+    // Active offers
+    const [activeOffersResult] = await sequelize.query(
+      `SELECT COUNT(*) AS "activeOffers" FROM "Offer" WHERE is_active = true` // quoted
+    );
+    const activeOffers = activeOffersResult[0].activeOffers;
+
+    return { totalUsers, activeBookings, activeOffers };
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    throw new Error("Failed to fetch dashboard data");
+  }
+}
 
 module.exports = {
   createAdminService,
@@ -37,4 +63,5 @@ module.exports = {
   updateAdminService,
   deleteAdminService,
   getAdminByEmailService,
+  getAdminDashboardService,
 };

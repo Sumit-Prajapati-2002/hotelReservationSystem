@@ -4,6 +4,7 @@ const {
   getFAQByIdService,
   updateFAQService,
   deleteFAQService,
+  getFiveService,
 } = require("../services/FAQService.js");
 
 async function createFAQ(req, res) {
@@ -18,6 +19,14 @@ async function createFAQ(req, res) {
 async function getAllFAQ(req, res) {
   try {
     const faqs = await getAllFAQService();
+    res.status(200).json({ success: true, faqs: faqs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+async function getFive(req, res) {
+  try {
+    const faqs = await getFiveService();
     res.status(200).json({ success: true, faqs: faqs });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -68,4 +77,5 @@ module.exports = {
   getFAQById,
   updateFAQ,
   deleteFAQ,
+  getFive,
 };

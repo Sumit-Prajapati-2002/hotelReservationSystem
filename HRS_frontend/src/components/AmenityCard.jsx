@@ -1,3 +1,5 @@
+"use client";
+
 export default function AmenityCard({ name, image, desc }) {
   return (
     <div className="relative h-80 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group cursor-pointer">

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -10,7 +12,7 @@ export default function HotelAmenities() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
 
-  // ✅ Fetch amenities from API
+  // Fetch amenities from API
   useEffect(() => {
     const fetchAmenities = async () => {
       try {
@@ -28,7 +30,7 @@ export default function HotelAmenities() {
     fetchAmenities();
   }, []);
 
-  // 🧩 Responsive items per view
+  // Responsive items per view
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) setItemsPerView(1);
@@ -45,11 +47,10 @@ export default function HotelAmenities() {
 
   const nextSlide = () =>
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-
   const prevSlide = () =>
     setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
 
-  // 🕒 Auto-slide every 5 seconds
+  // Auto-slide
   useEffect(() => {
     if (amenities.length > itemsPerView) {
       const interval = setInterval(nextSlide, 5000);
@@ -57,7 +58,6 @@ export default function HotelAmenities() {
     }
   }, [currentIndex, amenities.length, itemsPerView]);
 
-  // 🧭 Loading / Error states
   if (loading)
     return <div className="text-center py-10">Loading amenities...</div>;
   if (error)
@@ -66,9 +66,10 @@ export default function HotelAmenities() {
   return (
     <section
       id="amenities"
-      className="py-20 px-4 bg-gradient-to-br from-amber-50 to-orange-50"
+      className="py-20 px-4 bg-gradient-to-br from-teal-50 to-cyan-50 relative overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
+        {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold mb-4 text-gray-900">
             Hotel Amenities
@@ -78,7 +79,8 @@ export default function HotelAmenities() {
           </p>
         </div>
 
-        <div className="relative ">
+        {/* Slider */}
+        <div className="relative">
           <div className="overflow-hidden px-12">
             <div
               className="flex transition-transform duration-500 ease-out gap-6"
@@ -88,7 +90,7 @@ export default function HotelAmenities() {
                 }%)`,
               }}
             >
-              {amenities.map((amenity, idx) => (
+              {amenities.map((amenity) => (
                 <div
                   key={amenity.hotel_amenity_id}
                   className="flex-shrink-0"
@@ -108,19 +110,18 @@ export default function HotelAmenities() {
             </div>
           </div>
 
+          {/* Navigation */}
           {amenities.length > itemsPerView && (
             <>
               <button
                 onClick={prevSlide}
                 className="absolute left-0 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition z-10"
-                aria-label="Previous slide"
               >
                 <ChevronLeft size={24} className="text-gray-800" />
               </button>
               <button
                 onClick={nextSlide}
                 className="absolute right-0 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition z-10"
-                aria-label="Next slide"
               >
                 <ChevronRight size={24} className="text-gray-800" />
               </button>
@@ -128,6 +129,7 @@ export default function HotelAmenities() {
           )}
         </div>
 
+        {/* Dots */}
         {amenities.length > itemsPerView && (
           <div className="flex justify-center gap-2 mt-8">
             {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
@@ -139,7 +141,6 @@ export default function HotelAmenities() {
                     ? "w-8 bg-amber-600"
                     : "w-2 bg-gray-300 hover:bg-gray-400"
                 }`}
-                aria-label={`Go to slide ${idx + 1}`}
               />
             ))}
           </div>

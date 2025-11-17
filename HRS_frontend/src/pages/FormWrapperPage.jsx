@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Calendar,
   Users,
@@ -13,6 +16,7 @@ import {
 
 export default function BookingForm() {
   const { roomId } = useParams();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -33,7 +37,7 @@ export default function BookingForm() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // Simulate fetching logged-in customer info
+  // Fetch logged-in customer info
   useEffect(() => {
     const fetchCustomer = async () => {
       try {
@@ -83,14 +87,55 @@ export default function BookingForm() {
     setSuccess(false);
 
     try {
-      // Simulate API call
-      await new Promise((r) => setTimeout(r, 1500));
-      setSuccess(true);
+      // Prepare payload
+      const payload = {
+        rooms: formData.rooms,
+        checkIn_date: formData.checkIn_date,
+        checkOut_date: formData.checkOut_date,
+        num_guest: formData.num_guest,
+      };
+
+      // If guest, include personal info
+      if (!formData.customer_id) {
+        payload.firstname = formData.firstname;
+        payload.lastname = formData.lastname;
+        payload.email = formData.email;
+        payload.phone_no = formData.phone_no;
+        payload.nationality = formData.nationality;
+        payload.citizenship = formData.citizenship;
+      }
+
+      // Send data to backend
+      const res = await axios.post("http://localhost:3000/booking", payload, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.data.success) {
+        navigate("/confirmation", {
+          state: {
+            booking: res.data.booking,
+            customer: {
+              firstname: formData.firstname,
+              lastname: formData.lastname,
+              email: formData.email,
+              phone_no: formData.phone_no,
+            },
+            rooms: formData.rooms.map((r) => r.room_no),
+            checkIn_date: formData.checkIn_date.toISOString().split("T")[0],
+            checkOut_date: formData.checkOut_date.toISOString().split("T")[0],
+            num_guest: formData.num_guest,
+            totalPrice: res.data.total_price, // use backend total price
+          },
+        });
+      } else {
+        setError(res.data.message || "Booking failed");
+      }
     } catch (err) {
-      setError("Booking failed. Please try again.");
+      console.error(err);
+      setError(err.response?.data?.error || "Booking failed");
     } finally {
       setSubmitting(false);
-      setTimeout(() => setSuccess(false), 4000);
     }
   };
 

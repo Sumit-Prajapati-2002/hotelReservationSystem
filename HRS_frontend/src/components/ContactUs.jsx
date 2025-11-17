@@ -1,16 +1,54 @@
+"use client";
+
 import { useState } from "react";
 import { Phone, Mail, MapPin } from "lucide-react";
+
 export default function ContactSection() {
   const [contactForm, setContactForm] = useState({
     name: "",
     email: "",
+    related_subject: "",
     message: "",
   });
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Thank you for your message! We will get back to you soon.");
-    setContactForm({ name: "", email: "", message: "" });
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:3000/contact-us", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contact_name: contactForm.name,
+          email: contactForm.email, // <-- send email
+          related_subject: contactForm.related_subject,
+          message: contactForm.message,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("Thank you! Your message has been sent.");
+        setContactForm({
+          name: "",
+          email: "",
+          related_subject: "",
+          message: "",
+        });
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      alert("Failed to send message: " + error.message);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -27,6 +65,7 @@ export default function ContactSection() {
         </p>
 
         <div className="grid md:grid-cols-2 gap-12">
+          {/* LEFT SIDEBAR */}
           <div className="space-y-8">
             <div className="flex items-start group hover:bg-white p-6 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-lg">
               <div className="bg-gradient-to-br from-amber-600 to-orange-500 p-4 rounded-xl mr-5 group-hover:scale-110 transition-transform">
@@ -65,6 +104,7 @@ export default function ContactSection() {
             </div>
           </div>
 
+          {/* CONTACT FORM */}
           <div className="bg-white p-8 rounded-2xl shadow-xl">
             <form onSubmit={handleSubmit} className="space-y-5">
               <input
@@ -77,6 +117,7 @@ export default function ContactSection() {
                 className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition-colors text-gray-900"
                 required
               />
+
               <input
                 type="email"
                 placeholder="Your Email"
@@ -85,8 +126,22 @@ export default function ContactSection() {
                   setContactForm({ ...contactForm, email: e.target.value })
                 }
                 className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition-colors text-gray-900"
+              />
+
+              <input
+                type="text"
+                placeholder="Related Subject"
+                value={contactForm.related_subject}
+                onChange={(e) =>
+                  setContactForm({
+                    ...contactForm,
+                    related_subject: e.target.value,
+                  })
+                }
+                className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition-colors text-gray-900"
                 required
               />
+
               <textarea
                 placeholder="Your Message"
                 rows={5}
@@ -97,11 +152,17 @@ export default function ContactSection() {
                 className="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-amber-600 transition-colors resize-none text-gray-900"
                 required
               ></textarea>
+
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                disabled={loading}
+                className={`w-full bg-gradient-to-r from-amber-600 to-orange-500 text-white py-4 rounded-xl font-bold transition-all duration-300 shadow-lg ${
+                  loading
+                    ? "opacity-60 cursor-not-allowed"
+                    : "hover:from-amber-700 hover:to-orange-600 hover:shadow-xl transform hover:scale-105"
+                }`}
               >
-                Send Message
+                {loading ? "Sending..." : "Send Message"}
               </button>
             </form>
           </div>

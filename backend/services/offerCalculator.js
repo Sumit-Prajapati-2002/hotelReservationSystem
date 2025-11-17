@@ -1,7 +1,7 @@
 // services/offerCalculator.js
 
 const Room_Category = require("../models/RoomCategory");
-const Offer = require("../models/offer"); // assuming you have an offer table/model
+const Offer = require("../models/Offer"); // assuming you have an offer table/model
 
 /**
  * Calculate the offer price for a given room category.

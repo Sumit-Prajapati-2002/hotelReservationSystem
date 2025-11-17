@@ -92,7 +92,7 @@ async function createBookingService(body, token) {
       {
         checkIn_date,
         checkOut_date,
-        status: "pending",
+        status: "booked",
         total_price: 0,
         num_guest,
         customer_id,
@@ -183,6 +183,7 @@ async function getAllBookingsService(pageNumber = 1, limit = 10) {
   const query = `
     SELECT 
       b."booking_id",
+      b."status",
       TO_CHAR(b."checkIn_date", 'YYYY-MM-DD') AS "checkIn_date",
       TO_CHAR(b."checkOut_date", 'YYYY-MM-DD') AS "checkOut_date",
       b."total_price",
@@ -209,41 +210,103 @@ async function getAllBookingsService(pageNumber = 1, limit = 10) {
   });
   return bookings;
 }
-
 async function updateBookingService(id, data) {
-  const booking = await Booking.findByPk(id);
-  if (!booking) throw new Error("Booking not found");
+  const t = await sequelize.transaction();
 
-  const {
-    checkIn_date,
-    checkOut_date,
-    status,
-    total_price,
-    num_guest,
-    customer_id,
-  } = data;
+  try {
+    const booking = await Booking.findByPk(id);
+    if (!booking) throw new Error("Booking not found");
 
-  await booking.update({
-    checkIn_date,
-    checkOut_date,
-    status,
-    total_price,
-    num_guest,
-    customer_id,
-  });
+    const {
+      checkIn_date,
+      checkOut_date,
+      status,
+      total_price,
+      num_guest,
+      customer_id,
+    } = data;
 
-  return booking;
+    // Update booking fields
+    await booking.update(
+      {
+        checkIn_date,
+        checkOut_date,
+        status,
+        total_price,
+        num_guest,
+        customer_id,
+      },
+      { transaction: t }
+    );
+
+    // If status changes to cancel or completed → free rooms
+    if (status === "cancel" || status === "completed") {
+      await sequelize.query(
+        `
+        UPDATE "Room"
+        SET "room_status" = 'Available'
+        WHERE "room_id" IN (
+          SELECT "room_id"
+          FROM "Booking_Details"
+          WHERE "booking_id" = :bookingId
+        );
+        `,
+        { replacements: { bookingId: id }, transaction: t }
+      );
+    }
+
+    await t.commit();
+    return { message: "Booking updated successfully" };
+  } catch (err) {
+    await t.rollback();
+    throw err;
+  }
 }
 
 /**
  * Delete a booking
  */
 async function deleteBookingService(id) {
-  const booking = await Booking.findByPk(id);
-  if (!booking) throw new Error("Booking not found");
+  const t = await sequelize.transaction();
+  try {
+    // 1. Set associated rooms to Available
+    await sequelize.query(
+      `
+      UPDATE "Room"
+      SET "room_status" = 'Available'
+      WHERE "room_id" IN (
+        SELECT "room_id" 
+        FROM "Booking_Details" 
+        WHERE "booking_id" = :bookingId
+      );
+      `,
+      { replacements: { bookingId: id }, transaction: t }
+    );
 
-  await booking.destroy();
-  return true;
+    // 2. Delete booking details
+    await sequelize.query(
+      `
+      DELETE FROM "Booking_Details" 
+      WHERE "booking_id" = :bookingId;
+      `,
+      { replacements: { bookingId: id }, transaction: t }
+    );
+
+    // 3. Delete the booking
+    await sequelize.query(
+      `
+      DELETE FROM "Booking"
+      WHERE "booking_id" = :bookingId;
+      `,
+      { replacements: { bookingId: id }, transaction: t }
+    );
+
+    await t.commit();
+    return { message: "Booking deleted and rooms freed successfully" };
+  } catch (err) {
+    await t.rollback();
+    throw err;
+  }
 }
 
 module.exports = {

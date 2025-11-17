@@ -5,6 +5,9 @@ async function createFAQService(data) {
 }
 
 async function getAllFAQService() {
+  return await FAQ.findAll({});
+}
+async function getFiveService() {
   return await FAQ.findAll({
     attributes: ["question", "answer"],
     limit: 5,
@@ -37,4 +40,5 @@ module.exports = {
   getFAQByIdService,
   updateFAQService,
   deleteFAQService,
+  getFiveService,
 };

@@ -49,7 +49,7 @@ export default function Testimonials() {
   const prevSlide = () =>
     setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
 
-  // Auto-slide 
+  // Auto-slide
   useEffect(() => {
     if (testimonials.length > itemsPerView) {
       const interval = setInterval(nextSlide, 6000);
@@ -62,7 +62,7 @@ export default function Testimonials() {
   if (error) return <p className="text-center py-20 text-red-600">{error}</p>;
 
   return (
-    <section className="py-20 px-4 bg-white">
+    <section id="testimonials" className="py-20 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-4xl font-bold text-center mb-4 text-gray-900">
           Guest Reviews

@@ -11,7 +11,7 @@ export default function FAQSection() {
   useEffect(() => {
     const fetchFaqs = async () => {
       try {
-        const res = await fetch("http://localhost:3000/FAQ");
+        const res = await fetch("http://localhost:3000/FAQ/five");
         if (!res.ok) throw new Error("Failed to fetch FAQs");
 
         const data = await res.json();

@@ -9,6 +9,7 @@ const {
   updateAdminService,
   deleteAdminService,
   getAdminByEmailService,
+  getAdminDashboardService,
 } = require("../services/adminService");
 
 async function createAdmin(req, res) {
@@ -122,7 +123,15 @@ async function getAdminProfile(req, res) {
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
+async function getAdminDashboard(req, res) {
+  try {
+    const dashboardData = await getAdminDashboardService();
 
+    res.status(200).json({ success: true, data: dashboardData });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 
 module.exports = {
   createAdmin,
@@ -131,5 +140,6 @@ module.exports = {
   updateAdmin,
   deleteAdmin,
   adminLogin,
-  getAdminProfile
+  getAdminProfile,
+  getAdminDashboard,
 };

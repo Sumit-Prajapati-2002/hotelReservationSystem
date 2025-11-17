@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Menu, X, NotebookText } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 export default function Navbar({ scrollToSection }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isHomePage = location.pathname === "/";
 
   const sections = [
     "home",
@@ -19,7 +23,6 @@ export default function Navbar({ scrollToSection }) {
     "contact",
   ];
 
-  // ✅ Check authentication on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -27,17 +30,13 @@ export default function Navbar({ scrollToSection }) {
           withCredentials: true,
         });
         setIsAuthenticated(res.data.success === true);
-      } catch (err) {
+      } catch {
         setIsAuthenticated(false);
-        if (err.response?.status !== 401) {
-          console.error("Auth check failed:", err);
-        }
       }
     };
     checkAuth();
   }, []);
 
-  // ✅ Logout function
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -52,16 +51,22 @@ export default function Navbar({ scrollToSection }) {
     }
   };
 
-  // ✅ Scroll effect for navbar
+  // Scroll effect
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // 🔥 Smart Navigation for navbar buttons
   const handleClick = (section) => {
-    if (scrollToSection) scrollToSection(section);
     setMobileMenuOpen(false);
+
+    if (isHomePage && scrollToSection) {
+      scrollToSection(section);
+    } else {
+      navigate(`/?scroll=${section}`);
+    }
   };
 
   return (
@@ -77,107 +82,121 @@ export default function Navbar({ scrollToSection }) {
           {/* Brand */}
           <div
             onClick={() => navigate("/")}
-            className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform"
+            className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-500 bg-clip-text text-transparent cursor-pointer"
           >
             Serenity Hotel
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            {sections.map((s) => (
+            {/* Only show sections on home page */}
+            {isHomePage &&
+              sections.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleClick(s)}
+                  className="relative text-gray-700 hover:text-amber-600 transition-colors font-medium group"
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-amber-600 group-hover:w-full transition-all duration-300"></span>
+                </button>
+              ))}
+
+            {/* Booking History */}
+            {isAuthenticated && (
               <button
-                key={s}
-                onClick={() => handleClick(s)}
-                className="relative text-gray-700 hover:text-amber-600 transition-colors font-medium group"
+                onClick={() => navigate("/booking-history")}
+                className="flex items-center gap-1 text-gray-700 hover:text-amber-600"
               >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-amber-600 group-hover:w-full transition-all duration-300"></span>
+                <NotebookText size={18} />
+                Bookings
               </button>
-            ))}
+            )}
 
             {/* Auth Buttons */}
             {!isAuthenticated ? (
-              <div className="flex items-center space-x-3 ml-4">
+              <>
                 <button
                   onClick={() => navigate("/customer-login")}
-                  className="bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white px-6 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                  className="bg-gradient-to-r from-amber-600 to-orange-500 text-white px-6 py-2.5 rounded-full"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => navigate("/customer-register")}
-                  className="border-2 border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white px-6 py-2.5 rounded-full font-semibold transition-all duration-300 transform hover:scale-105"
+                  className="border-2 border-amber-600 text-amber-600 px-6 py-2.5 rounded-full"
                 >
                   Register
                 </button>
-              </div>
+              </>
             ) : (
               <button
                 onClick={handleLogout}
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-2.5 rounded-full font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-105"
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-full"
               >
                 Logout
               </button>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100"
           >
-            {mobileMenuOpen ? (
-              <X size={24} className="text-gray-800" />
-            ) : (
-              <Menu size={24} className="text-gray-800" />
-            )}
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t shadow-lg animate-slideDown">
+        <div className="md:hidden bg-white border-t shadow-lg">
           <div className="px-4 py-4 space-y-3">
-            {sections.map((s) => (
-              <button
-                key={s}
-                onClick={() => handleClick(s)}
-                className="block w-full text-left text-gray-700 hover:text-amber-600 hover:bg-amber-50 px-4 py-3 rounded-lg transition-colors font-medium"
-              >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
-            ))}
-
-            {/* Auth buttons for mobile */}
-            {!isAuthenticated ? (
-              <div className="space-y-2 pt-4 border-t">
+            {/* Only show scroll sections on home */}
+            {isHomePage &&
+              sections.map((s) => (
                 <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate("/customer-login");
-                  }}
-                  className="block w-full bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-700 hover:to-orange-600 text-white py-3 rounded-lg font-semibold transition-all shadow-md"
+                  key={s}
+                  onClick={() => handleClick(s)}
+                  className="block w-full text-left text-gray-700 hover:text-amber-600 hover:bg-amber-50 px-4 py-3 rounded-lg"
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  navigate("/booking-history");
+                }}
+                className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-amber-50"
+              >
+                <NotebookText size={20} />
+                Bookings
+              </button>
+            )}
+
+            {!isAuthenticated ? (
+              <>
+                <button
+                  onClick={() => navigate("/customer-login")}
+                  className="block w-full bg-amber-600 text-white py-3 rounded-lg"
                 >
                   Login
                 </button>
                 <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    navigate("/customer-register");
-                  }}
-                  className="block w-full border-2 border-amber-600 text-amber-600 hover:bg-amber-600 hover:text-white py-3 rounded-lg font-semibold transition-all"
+                  onClick={() => navigate("/customer-register")}
+                  className="block w-full border border-amber-600 text-amber-600 py-3 rounded-lg"
                 >
                   Register
                 </button>
-              </div>
+              </>
             ) : (
               <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                className="block w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-3 rounded-lg font-semibold transition-all shadow-md mt-4 border-t pt-4"
+                onClick={handleLogout}
+                className="block w-full bg-red-500 text-white py-3 rounded-lg"
               >
                 Logout
               </button>
