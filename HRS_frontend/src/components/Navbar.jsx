@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, NotebookText } from "lucide-react";
+import { Menu, X, NotebookText, User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -7,10 +7,11 @@ export default function Navbar({ scrollToSection }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [username, setUsername] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
-
   const isHomePage = location.pathname === "/";
 
   const sections = [
@@ -23,13 +24,18 @@ export default function Navbar({ scrollToSection }) {
     "contact",
   ];
 
+  // ✔ Check if logged in
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const res = await axios.get("http://localhost:3000/customer/me", {
           withCredentials: true,
         });
-        setIsAuthenticated(res.data.success === true);
+
+        if (res.data.success && res.data.customer) {
+          setIsAuthenticated(true);
+          setUsername(res.data.customer.fullname);
+        }
       } catch {
         setIsAuthenticated(false);
       }
@@ -37,6 +43,7 @@ export default function Navbar({ scrollToSection }) {
     checkAuth();
   }, []);
 
+  // ✔ Logout
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -45,29 +52,32 @@ export default function Navbar({ scrollToSection }) {
         { withCredentials: true }
       );
       setIsAuthenticated(false);
+      setDropdownOpen(false);
       navigate("/");
     } catch (err) {
       console.error("Logout failed", err);
     }
   };
 
-  // Scroll effect
+  // ✔ Scroll effect
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // 🔥 Smart Navigation for navbar buttons
+  // ✔ Scroll or Navigate
   const handleClick = (section) => {
     setMobileMenuOpen(false);
-
     if (isHomePage && scrollToSection) {
       scrollToSection(section);
     } else {
       navigate(`/?scroll=${section}`);
     }
   };
+
+  // ✔ First initial of username
+  const initial = username ? username.charAt(0).toUpperCase() : "U";
 
   return (
     <nav
@@ -89,7 +99,6 @@ export default function Navbar({ scrollToSection }) {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-6">
-            {/* Only show sections on home page */}
             {isHomePage &&
               sections.map((s) => (
                 <button
@@ -102,19 +111,39 @@ export default function Navbar({ scrollToSection }) {
                 </button>
               ))}
 
-            {/* Booking History */}
-            {isAuthenticated && (
-              <button
-                onClick={() => navigate("/booking-history")}
-                className="flex items-center gap-1 text-gray-700 hover:text-amber-600"
-              >
-                <NotebookText size={18} />
-                Bookings
-              </button>
-            )}
+            {/* IF LOGGED IN → AVATAR DROPDOWN */}
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="w-10 h-10 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold cursor-pointer"
+                >
+                  {initial}
+                </button>
 
-            {/* Auth Buttons */}
-            {!isAuthenticated ? (
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-3 w-44 bg-white shadow-lg border rounded-lg py-2">
+                    <button
+                      onClick={() => {
+                        navigate("/booking-history");
+                        setDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-amber-50 flex items-center gap-2"
+                    >
+                      <NotebookText size={18} />
+                      Booking History
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
               <>
                 <button
                   onClick={() => navigate("/customer-login")}
@@ -129,13 +158,6 @@ export default function Navbar({ scrollToSection }) {
                   Register
                 </button>
               </>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2.5 rounded-full"
-              >
-                Logout
-              </button>
             )}
           </div>
 
@@ -153,7 +175,7 @@ export default function Navbar({ scrollToSection }) {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t shadow-lg">
           <div className="px-4 py-4 space-y-3">
-            {/* Only show scroll sections on home */}
+            {/* Sections */}
             {isHomePage &&
               sections.map((s) => (
                 <button
@@ -166,19 +188,28 @@ export default function Navbar({ scrollToSection }) {
               ))}
 
             {isAuthenticated && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  navigate("/booking-history");
-                }}
-                className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-amber-50"
-              >
-                <NotebookText size={20} />
-                Bookings
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    navigate("/booking-history");
+                  }}
+                  className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-amber-50"
+                >
+                  <NotebookText size={20} />
+                  Booking History
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="block w-full bg-red-500 text-white py-3 rounded-lg"
+                >
+                  Logout
+                </button>
+              </>
             )}
 
-            {!isAuthenticated ? (
+            {!isAuthenticated && (
               <>
                 <button
                   onClick={() => navigate("/customer-login")}
@@ -193,13 +224,6 @@ export default function Navbar({ scrollToSection }) {
                   Register
                 </button>
               </>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="block w-full bg-red-500 text-white py-3 rounded-lg"
-              >
-                Logout
-              </button>
             )}
           </div>
         </div>
