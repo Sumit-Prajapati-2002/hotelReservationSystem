@@ -15,7 +15,10 @@ if (!fs.existsSync(uploadDir)) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const allowedOrigins = ["http://localhost:5174", "http://localhost:5173"];
+const allowedOrigins = [
+  "https://hotel-reservation-system-omega.vercel.app/",
+  "http://localhost:5173",
+];
 
 app.use(
   cors({

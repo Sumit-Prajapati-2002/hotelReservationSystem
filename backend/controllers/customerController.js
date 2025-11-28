@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const Customer = require("../models/Customer");
 const {
   findCustomerByEmail,
   createNewCustomer,
@@ -124,7 +123,7 @@ async function customerLogin(req, res) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // false in dev
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
-      maxAge: 24*60 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.status(200).json({ success: true, token });
@@ -165,8 +164,6 @@ async function getCustomerProfile(req, res) {
     res.status(401).json({ error: "Invalid or expired token" });
   }
 }
-
-
 
 module.exports = {
   createCustomer,

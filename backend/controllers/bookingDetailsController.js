@@ -1,4 +1,3 @@
-const Booking_Details = require("../models/BookingDetails");
 const sequelize = require("../services/database");
 const { QueryTypes } = require("sequelize");
 const { calculateTotalPrice } = require("../services/BookingCalculation");
