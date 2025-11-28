@@ -33,7 +33,7 @@ async function hashPassword(password) {
 
 async function findAllCustomers() {
   return await Customer.findAll({
-    attributes: ["firstname", "email", "phone_no"],
+    attributes: ["customer_id", "firstname", "email", "phone_no"],
   });
 }
 

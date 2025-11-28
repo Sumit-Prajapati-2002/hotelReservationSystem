@@ -7,6 +7,7 @@ const Customer = require("../models/Customer");
 const { isRoomAvailable } = require("./RoomAvailability");
 const { calculateTotalPrice } = require("./BookingCalculation");
 const jwt = require("jsonwebtoken");
+const { sendBookingEmail } = require("../utils/mailer");
 
 /**
  * Create a new booking (registered or guest)
@@ -119,7 +120,22 @@ async function createBookingService(body, token) {
 
     const total_price = await calculateTotalPrice(booking.booking_id, t);
 
+    // ❗ fix: update total price in the booking table
+    await booking.update({ total_price }, { transaction: t });
+
     await t.commit();
+
+    try {
+      await sendBookingEmail(customer.email, {
+        booking_id: booking.booking_id,
+        checkIn_date,
+        checkOut_date,
+        total_price,
+        customer_firstname: customer.firstname,
+      });
+    } catch (emailErr) {
+      console.log("Email could not be sent:", emailErr);
+    }
 
     return { booking, total_price, guestCheckout: customer.guestCheckout };
   } catch (err) {

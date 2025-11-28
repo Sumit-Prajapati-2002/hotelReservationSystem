@@ -47,8 +47,29 @@ async function getCustomerBookingSummary(req, res) {
     res.status(500).json({ error: "Failed to fetch booking summary" });
   }
 }
+async function adminGetBookingHistory(req, res) {
+  try {
+    const customer_id = req.params.customer_id;
+
+    if (!customer_id) {
+      return res.status(400).json({ error: "Customer ID is required" });
+    }
+
+    const history = await fetchBookingHistory(customer_id);
+
+    return res.status(200).json({
+      success: true,
+      history,
+    });
+  } catch (err) {
+    console.error("Admin booking history error:", err);
+    return res.status(500).json({ error: "Failed to fetch admin booking history" });
+  }
+}
+
 
 module.exports = {
   getCustomerBookingHistory,
   getCustomerBookingSummary,
+  adminGetBookingHistory,
 };

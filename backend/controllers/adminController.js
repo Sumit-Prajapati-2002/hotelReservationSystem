@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin"); // adjust path if needed
-
+const bcrypt = require("bcrypt");
 const config = require("../config/config");
 const {
   createAdminService,
@@ -76,7 +76,12 @@ async function adminLogin(req, res) {
     const { email, password } = req.body;
     const admin = await getAdminByEmailService(email);
 
-    if (!admin || admin.password !== password) {
+    if (!admin) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 

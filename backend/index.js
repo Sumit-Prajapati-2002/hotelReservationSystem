@@ -79,5 +79,5 @@ app.use("/room-category", room_categoryRoute);
   }
 })();
 
-const PORT = process.env.PORT || 3000;
+const PORT = app.port || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
