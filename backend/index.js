@@ -82,5 +82,5 @@ app.use("/room-category", room_categoryRoute);
   }
 })();
 
-const PORT = app.port || 3000;
+const PORT = config.app.port || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
