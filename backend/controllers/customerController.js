@@ -1,3 +1,4 @@
+const Customer = require("../models/Customer");
 const jwt = require("jsonwebtoken");
 const {
   findCustomerByEmail,
