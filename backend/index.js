@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 const allowedOrigins = [
-  "https://hotel-reservation-system-omega.vercel.app/",
+  "https://hotel-reservation-system-omega.vercel.app",
   "http://localhost:5173",
 ];
 
