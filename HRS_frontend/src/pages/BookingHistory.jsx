@@ -15,12 +15,12 @@ export default function BookingHistory() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [comment, setComment] = useState("");
   const [rating, setRating] = useState(0);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch booking history
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/booking-history", {
+        const res = await axios.get(`${BASE_URL}/booking-history`, {
           withCredentials: true,
         });
 
@@ -48,31 +48,30 @@ export default function BookingHistory() {
   };
 
   // Submit review
-// Submit review
-const submitReview = async () => {
-  if (!rating || !comment.trim()) {
-    alert("Please provide both rating and comment.");
-    return;
-  }
+  // Submit review
+  const submitReview = async () => {
+    if (!rating || !comment.trim()) {
+      alert("Please provide both rating and comment.");
+      return;
+    }
 
-  try {
-    await axios.post(
-      "http://localhost:3000/customer-testimonial",
-      {
-        rating,
-        comment,
-      },
-      { withCredentials: true }
-    );
+    try {
+      await axios.post(
+        `${BASE_URL}/customer-testimonial`,
+        {
+          rating,
+          comment,
+        },
+        { withCredentials: true }
+      );
 
-    alert("Testimonial submitted successfully!");
-    setShowModal(false);
-  } catch (err) {
-    alert("Failed to submit testimonial");
-    console.log(err);
-  }
-};
-
+      alert("Testimonial submitted successfully!");
+      setShowModal(false);
+    } catch (err) {
+      alert("Failed to submit testimonial");
+      console.log(err);
+    }
+  };
 
   return (
     <>

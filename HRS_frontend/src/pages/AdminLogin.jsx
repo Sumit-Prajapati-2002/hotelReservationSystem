@@ -11,7 +11,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL; // ✅ Use environment backend URL
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -25,7 +25,7 @@ export default function AdminLogin() {
     try {
       // Admin login API
       const res = await axios.post(
-        "http://localhost:3000/admin/login",
+        `${BASE_URL}/admin/login`, // ✅ use URL variable
         formData,
         { withCredentials: true }
       );

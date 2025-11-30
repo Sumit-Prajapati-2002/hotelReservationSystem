@@ -11,7 +11,7 @@ export default function BookingDetails() {
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "http://localhost:3000/booking";
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchBooking = async () => {
