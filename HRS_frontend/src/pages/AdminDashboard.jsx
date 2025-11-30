@@ -30,6 +30,7 @@ import AssignAmenitiesToCategory from "../Admin Components/AssignAmenitiesToCate
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const URL = import.meta.env.VITE_BACKEND_URL;
 
   const [activeSection, setActiveSection] = useState(
     localStorage.getItem("activeSection") || "dashboard"
@@ -60,9 +61,15 @@ export default function AdminDashboard() {
 
   // AUTH CHECK
   useEffect(() => {
+    if (!URL) {
+      console.error("❌ BACKEND URL missing. Check .env");
+      navigate("/admin-login");
+      return;
+    }
+
     const checkAdminAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/admin/me", {
+        const res = await axios.get(`${URL}/admin/me`, {
           withCredentials: true,
         });
 
@@ -80,16 +87,12 @@ export default function AdminDashboard() {
     };
 
     checkAdminAuth();
-  }, [navigate]);
+  }, [URL, navigate]);
 
   // LOGOUT
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:3000/admin/logout",
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${URL}/admin/logout`, {}, { withCredentials: true });
     } catch (err) {
       console.error("Logout failed", err);
     } finally {
