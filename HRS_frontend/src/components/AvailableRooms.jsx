@@ -8,12 +8,12 @@ export default function AvailableRooms({ categoryId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/room-category/${categoryId}/rooms`
+          `${BASE_URL}/room-category/${categoryId}/rooms`
         );
         const data = await res.json();
 

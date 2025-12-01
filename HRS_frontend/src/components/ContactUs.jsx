@@ -10,7 +10,7 @@ export default function ContactSection() {
     related_subject: "",
     message: "",
   });
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -18,7 +18,7 @@ export default function ContactSection() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/contact-us", {
+      const res = await fetch(`${BASE_URL}/contact-us`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
