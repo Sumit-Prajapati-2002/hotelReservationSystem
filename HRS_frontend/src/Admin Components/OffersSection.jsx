@@ -10,7 +10,7 @@ export default function AdminOffersSection() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [isAddOpen, setIsAddOpen] = useState(false);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Initial state for new offer with all required fields
   const initialNewOffer = {
     offer_title: "",
@@ -26,7 +26,7 @@ export default function AdminOffersSection() {
   // Fetch offers
   const fetchOffers = async () => {
     try {
-      const res = await fetch("http://localhost:3000/offer", {
+      const res = await fetch(`${BASE_URL}/offer`, {
         method: "GET",
         credentials: "include",
       });
@@ -47,7 +47,7 @@ export default function AdminOffersSection() {
     if (!confirm("Are you sure you want to delete this offer?")) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/offer/${offer_id}`, {
+      const res = await fetch(`${BASE_URL}/offer/${offer_id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -87,7 +87,7 @@ export default function AdminOffersSection() {
   // Save edited offer
   const handleUpdate = async (offer_id) => {
     try {
-      const res = await fetch(`http://localhost:3000/offer/${offer_id}`, {
+      const res = await fetch(`${BASE_URL}/offer/${offer_id}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -109,7 +109,7 @@ export default function AdminOffersSection() {
   // Add new offer
   const handleAdd = async () => {
     try {
-      const res = await fetch("http://localhost:3000/offer", {
+      const res = await fetch(`${BASE_URL}/offer`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

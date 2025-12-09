@@ -17,9 +17,9 @@ export default function RoomsSection() {
     room_image: null,
   });
   const [editingRoom, setEditingRoom] = useState(null);
-
-  const BASE_URL = "http://localhost:3000/room";
-  const CATEGORY_URL = "http://localhost:3000/room-category";
+  const URL = import.meta.env.VITE_BACKEND_URL;
+  const BASE_URL = `${URL}/room`;
+  const CATEGORY_URL = `${URL}/room-category`;
 
   const statusColors = {
     available: "bg-green-100 text-green-700",

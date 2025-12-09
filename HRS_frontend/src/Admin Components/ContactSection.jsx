@@ -7,11 +7,11 @@ import { Trash2, Mail } from "lucide-react";
 export default function ContactSection() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch all contact messages (admin only)
   const loadContacts = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/contact-us", {
+      const res = await axios.get(`${BASE_URL}/contact-us`, {
         withCredentials: true,
       });
       if (Array.isArray(res.data.messages)) {
@@ -37,7 +37,7 @@ export default function ContactSection() {
     if (!confirm("Are you sure you want to delete this message?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/contact-us/${id}`, {
+      await axios.delete(`${BASE_URL}/contact-us/${id}`, {
         withCredentials: true,
       });
       loadContacts();

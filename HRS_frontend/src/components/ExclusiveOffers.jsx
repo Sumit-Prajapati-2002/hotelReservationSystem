@@ -17,13 +17,14 @@ export default function ExclusiveOffers() {
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch offers from API
   useEffect(() => {
     const fetchOffers = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/room-category/offers",
+          `${BASE_URL}/room-category/offers`,
           { withCredentials: true }
         );
         if (res.data.success && Array.isArray(res.data.categories)) {

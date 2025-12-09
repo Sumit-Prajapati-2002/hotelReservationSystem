@@ -15,14 +15,13 @@ export default function AmenitiesSection() {
     description: "",
     image: null,
   });
-
-  const BASE_URL = "http://localhost:3000/hotel-amenity";
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch amenities
   const fetchAmenities = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(BASE_URL);
+      const res = await axios.get(`${BASE_URL}/hotel-amenity`);
       setAmenities(Array.isArray(res.data.amenities) ? res.data.amenities : []);
     } catch (err) {
       console.error(err);
@@ -55,7 +54,9 @@ export default function AmenitiesSection() {
   const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this amenity?")) return;
     try {
-      await axios.delete(`${BASE_URL}/${id}`, { withCredentials: true });
+      await axios.delete(`${BASE_URL}/hotel-amenity/${id}`, {
+        withCredentials: true,
+      });
       setAmenities(amenities.filter((a) => a.hotel_amenity_id !== id));
     } catch (err) {
       console.error(err);

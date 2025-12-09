@@ -16,12 +16,12 @@ export default function RoomCategoryModal({ open, onClose, editId, onSaved }) {
 
   const [offers, setOffers] = useState([]); // fetch available offers
   const [loading, setLoading] = useState(false);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch offers for dropdown
   useEffect(() => {
     const fetchOffers = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/offer");
+        const res = await axios.get(`${BASE_URL}/offer`);
         const activeOffers = (res.data.offers || []).filter((o) => o.is_active);
         setOffers(activeOffers);
       } catch (err) {
@@ -36,7 +36,7 @@ export default function RoomCategoryModal({ open, onClose, editId, onSaved }) {
     if (!isEdit || !open) return;
 
     axios
-      .get(`http://localhost:3000/room-category/${editId}`, {
+      .get(`${BASE_URL}/room-category/${editId}`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -78,13 +78,13 @@ export default function RoomCategoryModal({ open, onClose, editId, onSaved }) {
       }
 
       if (isEdit) {
-        await axios.put(`http://localhost:3000/room-category/${editId}`, fd, {
+        await axios.put(`${BASE_URL}/room-category/${editId}`, fd, {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         });
         alert("Category updated!");
       } else {
-        await axios.post("http://localhost:3000/room-category", fd, {
+        await axios.post(`${BASE_URL}/room-category`, fd, {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         });

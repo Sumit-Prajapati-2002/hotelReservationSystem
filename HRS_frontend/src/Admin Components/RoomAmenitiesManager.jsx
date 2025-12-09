@@ -9,8 +9,8 @@ export default function RoomAmenitiesManager() {
   const [editingAmenity, setEditingAmenity] = useState(null);
   const [newAmenity, setNewAmenity] = useState({ name: "", description: "" });
   const [searchTerm, setSearchTerm] = useState("");
-
-  const BASE_URL = "http://localhost:3000/room-amenity";
+  const URL = import.meta.env.VITE_BACKEND_URL;
+  const BASE_URL = `${URL}/room-amenity`;
 
   // Fetch amenities from backend
   const fetchAmenities = async () => {

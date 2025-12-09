@@ -16,6 +16,7 @@ export default function Form({ availableRooms }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +51,7 @@ export default function Form({ availableRooms }) {
       };
 
       const res = await axios.post(
-        "http://localhost:3000/customer/login-booking",
+        `${BASE_URL}/customer/login-booking`,
         payload,
         { withCredentials: true }
       );

@@ -10,16 +10,16 @@ export default function AssignAmenitiesToCategory() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch categories and amenities
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [catRes, amenRes] = await Promise.all([
-          axios.get("http://localhost:3000/room-category", {
+          axios.get(`${BASE_URL}/room-category`, {
             withCredentials: true,
           }),
-          axios.get("http://localhost:3000/room-amenity", {
+          axios.get(`${BASE_URL}/room-amenity`, {
             withCredentials: true,
           }),
         ]);
@@ -44,10 +44,9 @@ export default function AssignAmenitiesToCategory() {
     if (!categoryId) return setSelectedAmenities([]);
 
     try {
-      const res = await axios.get(
-        `http://localhost:3000/amenity-bridge/${categoryId}`,
-        { withCredentials: true }
-      );
+      const res = await axios.get(`${BASE_URL}/amenity-bridge/${categoryId}`, {
+        withCredentials: true,
+      });
 
       setSelectedAmenities(
         Array.isArray(res.data.amenities)
@@ -70,7 +69,7 @@ export default function AssignAmenitiesToCategory() {
 
     try {
       await axios.post(
-        "http://localhost:3000/amenity-bridge/update",
+        `${BASE_URL}/amenity-bridge/update`,
         {
           room_category_id: selectedCategory,
           room_amenity_ids: selectedAmenities,

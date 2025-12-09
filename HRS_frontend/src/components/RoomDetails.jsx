@@ -9,13 +9,11 @@ export default function RoomDetails({ categoryId, onBack }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const response = await fetch(
-          `http://localhost:3000/room-category/${categoryId}`
-        );
+        const response = await fetch(`${BASE_URL}/room-category/${categoryId}`);
         const data = await response.json();
 
         if (data.success) {

@@ -8,13 +8,15 @@ export default function AdminBookings() {
   const [loading, setLoading] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
 
-  const BASE_URL = "http://localhost:3000/booking";
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
 
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(BASE_URL, { withCredentials: true });
+      const res = await axios.get(`${BASE_URL}/booking`, {
+        withCredentials: true,
+      });
       setBookings(Array.isArray(res.data.bookings) ? res.data.bookings : []);
     } catch (err) {
       console.error(err);

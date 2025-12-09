@@ -11,11 +11,12 @@ export default function UsersSection() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [bookingHistory, setBookingHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   // Fetch all users
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/customer/", {
+      const res = await axios.get(`${BASE_URL}/customer/`, {
         withCredentials: true,
       });
 
@@ -39,7 +40,7 @@ export default function UsersSection() {
 
     try {
       const res = await axios.get(
-        `http://localhost:3000/booking-history/${customer_id}`,
+        `${BASE_URL}/booking-history/${customer_id}`,
         {
           withCredentials: true,
         }

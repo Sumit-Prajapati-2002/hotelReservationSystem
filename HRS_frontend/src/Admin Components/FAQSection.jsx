@@ -14,11 +14,11 @@ export default function FAQSection() {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch all FAQs
   const loadFaqs = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/FAQ", {
+      const res = await axios.get(`${BASE_URL}/FAQ`, {
         withCredentials: true,
       });
 
@@ -45,7 +45,7 @@ export default function FAQSection() {
 
     try {
       await axios.post(
-        "http://localhost:3000/FAQ",
+        `${BASE_URL}/FAQ`,
         { question, answer },
         { withCredentials: true }
       );
@@ -65,7 +65,7 @@ export default function FAQSection() {
 
     try {
       await axios.put(
-        `http://localhost:3000/FAQ/${editId}`,
+        `${BASE_URL}/FAQ/${editId}`,
         { question, answer },
         { withCredentials: true }
       );
@@ -84,7 +84,7 @@ export default function FAQSection() {
     if (!confirm("Delete this FAQ?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/FAQ/${id}`, {
+      await axios.delete(`${BASE_URL}/FAQ/${id}`, {
         withCredentials: true,
       });
 

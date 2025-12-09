@@ -11,12 +11,12 @@ export default function RoomCategory() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // ✅ Fetch Rooms
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/room-category");
+        const res = await axios.get(`${BASE_URL}/room-category`);
         if (!res.data.success) throw new Error("Failed to load categories");
         setRoomCategories(res.data.categories);
       } catch (err) {

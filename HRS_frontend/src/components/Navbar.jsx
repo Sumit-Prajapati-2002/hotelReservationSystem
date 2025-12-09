@@ -9,7 +9,7 @@ export default function Navbar({ scrollToSection }) {
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [username, setUsername] = useState("");
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === "/";
@@ -28,7 +28,7 @@ export default function Navbar({ scrollToSection }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/customer/me", {
+        const res = await axios.get(`${BASE_URL}/customer/me`, {
           withCredentials: true,
         });
 
@@ -47,7 +47,7 @@ export default function Navbar({ scrollToSection }) {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/customer/logout",
+        `${BASE_URL}/customer/logout`,
         {},
         { withCredentials: true }
       );

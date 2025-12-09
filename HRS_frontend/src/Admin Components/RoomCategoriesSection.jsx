@@ -10,14 +10,14 @@ export default function RoomCategoriesSection() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setModalOpen] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/room-category", {
+      const res = await axios.get(`${BASE_URL}/room-category`, {
         withCredentials: true,
       });
       setCategories(res.data.categories || []);
@@ -42,7 +42,7 @@ export default function RoomCategoriesSection() {
     if (!window.confirm("Delete this category?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/room-category/${id}`, {
+      await axios.delete(`${BASE_URL}/room-category/${id}`, {
         withCredentials: true,
       });
 

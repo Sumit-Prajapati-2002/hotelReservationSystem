@@ -11,12 +11,12 @@ export default function HotelAmenities() {
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch amenities from API
   useEffect(() => {
     const fetchAmenities = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/hotel-amenity");
+        const res = await axios.get(`${BASE_URL}/hotel-amenity`);
         if (!res.data.success) throw new Error("Failed to load amenities");
         setAmenities(res.data.amenities);
       } catch (err) {

@@ -10,13 +10,13 @@ export default function DashboardCards() {
     activeOffers: 0,
     totalRevenue: 0,
   });
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/admin/dashboard", {
+        const res = await axios.get(`${BASE_URL}/admin/dashboard`, {
           withCredentials: true,
         });
 
@@ -72,7 +72,6 @@ export default function DashboardCards() {
             >
               <card.icon size={28} className="text-white" />
             </div>
-            
           </div>
 
           <h3 className="text-gray-600 font-semibold mb-1">{card.title}</h3>

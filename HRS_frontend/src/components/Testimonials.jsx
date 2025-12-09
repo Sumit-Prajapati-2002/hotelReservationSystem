@@ -12,14 +12,12 @@ export default function Testimonials() {
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsPerView, setItemsPerView] = useState(3);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch testimonials from API
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:3000/customer-testimonial"
-        );
+        const res = await axios.get(`${BASE_URL}/customer-testimonial`);
         if (!res.data.success) throw new Error("Failed to load testimonials");
         setTestimonials(res.data.testimonials);
       } catch (err) {

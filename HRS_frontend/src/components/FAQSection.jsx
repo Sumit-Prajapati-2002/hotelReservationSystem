@@ -7,11 +7,11 @@ export default function FAQSection() {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   useEffect(() => {
     const fetchFaqs = async () => {
       try {
-        const res = await fetch("http://localhost:3000/FAQ/five");
+        const res = await fetch(`${BASE_URL}/FAQ/five`);
         if (!res.ok) throw new Error("Failed to fetch FAQs");
 
         const data = await res.json();

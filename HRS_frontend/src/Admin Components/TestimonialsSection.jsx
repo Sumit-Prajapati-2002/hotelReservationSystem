@@ -7,12 +7,12 @@ import { Trash2, Star } from "lucide-react";
 export default function TestimonialsSection() {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   // Fetch all testimonials
   const loadTestimonials = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/customer-testimonial",
+        `${BASE_URL}/customer-testimonial`,
         { withCredentials: true }
       );
 
@@ -38,7 +38,7 @@ export default function TestimonialsSection() {
     if (!confirm("Are you sure you want to delete this testimonial?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/customer-testimonial/${id}`, {
+      await axios.delete(`${BASE_URL}/customer-testimonial/${id}`, {
         withCredentials: true,
       });
       loadTestimonials();
