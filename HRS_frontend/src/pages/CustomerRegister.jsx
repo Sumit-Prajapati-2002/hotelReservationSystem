@@ -20,6 +20,7 @@ export default function CustomerRegister() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,7 +36,7 @@ export default function CustomerRegister() {
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:3000/customer", {
+      const res = await fetch(`${BASE_URL}/customer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

@@ -11,7 +11,7 @@ export default function CustomerLogin() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
+  const BASE_URL = import.meta.env.VITE_BACKEND_URL;
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -24,7 +24,7 @@ export default function CustomerLogin() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/customer/login",
+        `${BASE_URL}/customer/login`,
         formData,
         { withCredentials: true }
       );
@@ -134,12 +134,11 @@ export default function CustomerLogin() {
         </div>
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-           
             <button
               onClick={() => navigate("/")}
               className="text-amber-600 font-semibold hover:text-amber-700 transition-colors"
             >
-               Continue as guest
+              Continue as guest
             </button>
           </p>
         </div>
