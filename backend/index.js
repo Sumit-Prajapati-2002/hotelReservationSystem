@@ -15,26 +15,18 @@ if (!fs.existsSync(uploadDir)) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-const allowedOrigins = [
-  "https://hotel-reservation-system-omega.vercel.app",
-  "http://localhost:5173",
-];
+const cors = require("cors");
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests like Postman or server-to-server (no origin)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: [
+      "https://hotel-reservation-system-omega.vercel.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
+app.set("trust proxy", 1);
 
 // Serve uploaded files
 app.use("/uploads", express.static(uploadDir));

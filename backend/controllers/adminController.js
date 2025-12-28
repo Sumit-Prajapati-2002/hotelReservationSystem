@@ -91,10 +91,13 @@ async function adminLogin(req, res) {
       { expiresIn: "1d" }
     );
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      secure: isProduction, // ❗ only true on Render
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -111,7 +114,7 @@ async function getAdminProfile(req, res) {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.app.jwtSecret);
 
     // Fetch admin from DB using decoded.id
     const admin = await Admin.findByPk(decoded.id);
